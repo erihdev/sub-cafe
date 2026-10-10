@@ -185,7 +185,7 @@ img,video,iframe{max-width:100%}
 .signc .sgrid,.fsig{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:10px;margin:8px 0}
 .sbox{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:4px;background:var(--surface)}.sbox.ok{border-color:var(--good)}.sbox small{color:var(--muted)}
 .sigimg{width:100%;height:auto;max-height:90px;display:block;background:#fff;border-radius:6px}.snone{color:var(--muted);font-size:13px;padding:14px 0}
-.spad{display:grid;gap:8px}#sigCv{width:100%;touch-action:none;background:#fff;border:2px dashed var(--accent);border-radius:10px;display:block;cursor:crosshair}.sline{border-top:1px solid var(--muted);text-align:center;font-size:13px;color:var(--muted);padding-top:4px}
+.spad{display:grid;gap:8px}.hpad{border:2px solid var(--accent);border-radius:12px;padding:12px;margin:10px 0;background:var(--accent-soft)}#sigCv,#hsigCv{width:100%;touch-action:none;background:#fff;border:2px dashed var(--accent);border-radius:10px;display:block;cursor:crosshair}.sline{border-top:1px solid var(--muted);text-align:center;font-size:13px;color:var(--muted);padding-top:4px}
 .fcon{border:2px solid var(--good)}.fcon h3{margin:14px 0 6px}.fct{text-align:center;margin:12px 0 2px}.fcd{text-align:center;color:var(--muted);margin:0}.fcl li{margin-bottom:6px;line-height:1.75}.fsig>div{text-align:center;border-top:1px solid var(--line);padding-top:8px}.fsn{font-weight:700}.fsd{font-size:13px;color:var(--muted)}
 .waitv{min-height:calc(100vh - 230px);display:flex;align-items:center;justify-content:center;text-align:center}.wv-in{display:grid;gap:10px;justify-items:center;max-width:560px;width:100%}.wv-ic{font-size:44px}
 .cd{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;direction:rtl;width:100%}.cdu{background:var(--surface);border:1px solid var(--line);border-radius:14px;flex:1 1 0;max-width:110px;min-width:0;padding:10px 4px;display:grid}.cdu b{font-size:clamp(28px,9vw,44px);line-height:1.1;color:var(--accent)}.cdu span{font-size:12.5px;color:var(--muted)}.cd.up .cdu b{color:var(--good)}
@@ -367,7 +367,7 @@ const BUD0={months:4,cont:0,monthly:[['الإيجار','ثابت — عقد 20 �
 const REMOVED=['رخصة البلدية لنشاط مقهى','اشتراك الغرفة التجارية','ترقية عداد الكهرباء','غسالة صحون','فريزر رأسي','دورة المياه','حليب ومشتقات (المخزون الافتتاحي)','شاشات المنيو','خلاطات','طابعات إيصالات','لافتات داخلية','العزل'];
 
 /* ===== الحالة ===== */
-const st={tl:null,profiles:{},holder:null,ings:[],menu:[],staff:[],cfg:null,items:[],spend:[],contrib:[],tasks:[],dec:[],log:[],chk:{},calc:null,bud:null,chat:[],trash:[],sign:{},dist:[],loaded:false};
+const st={tl:null,profiles:{},holder:null,ings:[],menu:[],staff:[],cfg:null,items:[],spend:[],contrib:[],tasks:[],dec:[],log:[],chk:{},calc:null,bud:null,chat:[],trash:[],sign:{},hsign:null,dist:[],loaded:false};
 let db=null,user=null,myId=null,canWrite=true,names={},confirmDel=null;
 const dflt={name:'صُب',open:'',threshold:10000,partners:[{k:'p1',name:'ضيف الله',pct:'',commit:'',uid:''},{k:'p2',name:'الشريك الثاني',pct:'',commit:'',uid:''},{k:'p3',name:'الشريك الثالث',pct:'',commit:'',uid:''}]};
 const cfg=()=>Object.assign({},dflt,st.cfg||{});
@@ -588,32 +588,46 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-rvot
 
 
 /* ===== التوقيع والعقد النهائي ===== */
+const ld=t=>new Date(+t+3*3600e3).toISOString().slice(0,10);
 function agrHash(){let t=RULES.map(r=>r[0]+r[1]+r[2]+((st.chk['r_'+r[0]]||{}).note||'')).join('|');let h=5381;for(let i=0;i<t.length;i++)h=((h*33)^t.charCodeAt(i))>>>0;return h.toString(36);}
 const allMineOk=k=>RULES.every(r=>{const x=rState(r[0]).v[k];return x&&x.s==='ok';});
 const allAgreed=()=>RULES.every(r=>rStatus(r[0]).all);
 function sigOf(k){const g=st.sign[k];if(!g||!g.d)return null;return Object.assign({valid:g.h===agrHash()&&allMineOk(k)},g);}
-const contractDone=()=>allAgreed()&&P().every(p=>{const g=sigOf(p.k);return g&&g.valid;});
+const contractDone=()=>allAgreed()&&P().every(p=>{const g=sigOf(p.k);return g&&g.valid;})&&(!(st.holder||{}).full||!!st.hsign);
+const isDaif=()=>{const mk=myKey();const p=P().find(x=>x.k===mk);return !!(p&&/ضيف\s*الله/.test(p.name));};
 const sigSvg=(d,cls)=>`<svg class="${cls||'sigimg'}" viewBox="0 0 600 200" role="img" aria-label="توقيع"><path d="${esc(d)}" fill="none" stroke="#1d1b18" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const SIG={busy:false,strokes:[],cur:null};
 function signCard(){const ps=P(),mk=myKey();const mine=mk?sigOf(mk):null;const ready=mk&&allMineOk(mk);
   let h=`<section class="panel signc" id="signCard"><h3>✍️ التوقيع على الاتفاق</h3><p class="sub">بعد أن يوافق الشريك على البنود كلها يوقّع هنا بيده. التوقيع يُحفظ في المسودة، وإذا وقّع الجميع واتفقوا على كل البنود يظهر العقد النهائي بتواقيعكم أعلى هذه الصفحة. إذا تغيّر نص أي بند بعد التوقيع يلزم التوقيع من جديد.</p>
-  <div class="sgrid">${ps.map(p=>{const g=sigOf(p.k);return `<div class="sbox ${g&&g.valid?'ok':''}"><b>${esc(p.name)}</b>${g?sigSvg(g.d)+`<small>${g.valid?'وقّع في '+fmtD(new Date(g.ts).toISOString().slice(0,10)):'⚠️ تغيّر الاتفاق بعد توقيعه، يلزم توقيع جديد'}</small>`:`<div class="snone">${allMineOk(p.k)?'وافق على الكل، لم يوقّع بعد':'لم يكمل الموافقة على البنود'}</div>`}</div>`;}).join('')}</div>`;
+  <div class="sgrid">${(st.holder||{}).full?`<div class="sbox ${st.hsign?'ok':''}"><b>${esc(st.holder.full)} <small>(صاحبة السجل)</small></b>${st.hsign?sigSvg(st.hsign.d)+`<small>وقّعت في ${fmtD(ld(st.hsign.ts))}</small>`:'<div class="snone">لم توقّع بعد</div>'}</div>`:''}${ps.map(p=>{const g=sigOf(p.k);return `<div class="sbox ${g&&g.valid?'ok':''}"><b>${esc(p.name)}</b>${g?sigSvg(g.d)+`<small>${g.valid?'وقّع في '+fmtD(ld(g.ts)):'⚠️ تغيّر الاتفاق بعد توقيعه، يلزم توقيع جديد'}</small>`:`<div class="snone">${allMineOk(p.k)?'وافق على الكل، لم يوقّع بعد':'لم يكمل الموافقة على البنود'}</div>`}</div>`;}).join('')}</div>`;
   if(!mk)return h+`</section>`;
+  h+=holderPad();
   if(!ready){const left=RULES.filter(r=>{const x=rState(r[0]).v[mk];return !x||x.s!=='ok';}).length;return h+`<div class="note warn"><b>التوقيع يُفتح بعد موافقتك على كل البنود</b>باقي ${left} بند لم توافق عليه.</div></section>`;}
   if(mine&&mine.valid&&!SIG.redo)return h+`<div class="row"><span class="tag good">✓ وقّعت</span><button class="ghost" id="sigRedo">أعد التوقيع</button></div></section>`;
   return h+`<div class="spad"><p class="sub" style="margin:0 0 6px">وقّع بإصبعك داخل المربع:</p><canvas id="sigCv" aria-label="مساحة التوقيع"></canvas><div class="sline">${esc(pName(mk))}</div>
    <div class="row"><button id="sigSave">حفظ توقيعي</button><button class="soft" id="sigClear">مسح</button>${mine?'<button class="ghost" id="sigCancel">إلغاء</button>':''}</div></div></section>`;}
-function sigInit(){const cv=document.getElementById('sigCv');if(!cv)return;const W=cv.clientWidth||300,H=Math.round(W/3);const dpr=window.devicePixelRatio||1;cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';const x=cv.getContext('2d');x.scale(dpr,dpr);x.lineWidth=2.6;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#1d1b18';
+function holderPad(){if(!isDaif()||st.hsign||!(st.holder||{}).full)return '';
+  return `<div class="spad hpad"><p style="margin:0"><b>✍️ توقيع ${esc(st.holder.full)} (صاحبة السجل)</b></p><p class="sub" style="margin:0">هذه الخانة تظهر لك فقط. خلّها توقّع بإصبعها ثم احفظ، وبعد الحفظ تختفي الخانة ولا يلزم توقيع ثانٍ.</p><canvas id="hsigCv" aria-label="مساحة توقيع صاحبة السجل"></canvas><div class="sline">${esc(st.holder.full)}</div>
+   <div class="row"><button id="hsigSave">حفظ توقيعها</button><button class="soft" id="hsigClear">مسح</button></div></div>`;}
+const HSIG={busy:false,strokes:[],cur:null};
+function sigInit(){padInit('hsigCv',HSIG);padInit('sigCv',SIG);}
+function padInit(cid,SIG){const cv=document.getElementById(cid);if(!cv)return;const W=cv.clientWidth||300,H=Math.round(W/3);const dpr=window.devicePixelRatio||1;cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';const x=cv.getContext('2d');x.scale(dpr,dpr);x.lineWidth=2.6;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#1d1b18';
   const draw=()=>{x.clearRect(0,0,W,H);SIG.strokes.forEach(s=>{x.beginPath();s.forEach((pt,i)=>{const a=pt[0]*W/600,b=pt[1]*H/200;i?x.lineTo(a,b):x.moveTo(a,b);});if(s.length===1)x.lineTo(s[0][0]*W/600+.1,s[0][1]*H/200);x.stroke();});};draw();
   const pos=e=>{const r=cv.getBoundingClientRect();return [Math.round((e.clientX-r.left)/r.width*600),Math.round((e.clientY-r.top)/r.height*200)];};
   cv.onpointerdown=e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);SIG.busy=true;SIG.cur=[pos(e)];SIG.strokes.push(SIG.cur);draw();};
   cv.onpointermove=e=>{if(!SIG.cur)return;e.preventDefault();const p=pos(e),l=SIG.cur[SIG.cur.length-1];if(Math.abs(p[0]-l[0])+Math.abs(p[1]-l[1])<3)return;SIG.cur.push(p);draw();};
   cv.onpointerup=cv.onpointercancel=()=>{SIG.cur=null;};}
-function sigPath(){return SIG.strokes.map(s=>'M'+s.map(p=>p[0]+' '+p[1]).join('L')+(s.length===1?'l0.1 0':'')).join('');}
+function sigPath(S){return (S||SIG).strokes.map(s=>'M'+s.map(p=>p[0]+' '+p[1]).join('L')+(s.length===1?'l0.1 0':'')).join('');}
+document.addEventListener('click',async e=>{const b=e.target.closest('#hsigSave,#hsigClear');if(!b||!isDaif())return;
+  if(b.id==='hsigClear'){HSIG.strokes=[];padInit('hsigCv',HSIG);return;}
+  if(HSIG.strokes.reduce((a,s)=>a+s.length,0)<12){flash('التوقيع قصير جدًّا، خلّها توقّع بشكل واضح.','warn');return;}
+  const d=sigPath(HSIG);if(d.length>40000){flash('التوقيع طويل جدًّا، امسح وأعد.','warn');return;}
+  b.disabled=true;const doc={d,ts:Date.now(),by:myKey(),name:(st.holder||{}).full||''};
+  if(await w(()=>db.doc('holder/sign').set(doc),'حُفظ توقيع صاحبة السجل ✍️')){HSIG.strokes=[];HSIG.busy=false;st.hsign=doc;render();flash('حُفظ توقيع صاحبة السجل.');}else b.disabled=false;});
 document.addEventListener('click',async e=>{const b=e.target.closest('#sigSave,#sigClear,#sigRedo,#sigCancel,#ctPrint');if(!b)return;const mk=myKey();
   if(b.id==='ctPrint'){window.print();return;}
   if(!mk)return;
-  if(b.id==='sigClear'){SIG.strokes=[];sigInit();return;}
+  if(b.id==='sigClear'){SIG.strokes=[];padInit('sigCv',SIG);return;}
   if(b.id==='sigRedo'){SIG.redo=true;SIG.strokes=[];render();return;}
   if(b.id==='sigCancel'){SIG.redo=false;SIG.strokes=[];SIG.busy=false;render();return;}
   const n=SIG.strokes.reduce((a,s)=>a+s.length,0);if(n<12){flash('التوقيع قصير جدًّا، وقّع بشكل واضح.','warn');return;}
@@ -621,13 +635,13 @@ document.addEventListener('click',async e=>{const b=e.target.closest('#sigSave,#
   b.disabled=true;const ok=await w(()=>db.doc('sign/'+mk).set({d,h:agrHash(),ts:Date.now(),by:mk}),'وقّع على اتفاق الشركاء ✍️');
   if(ok){SIG.strokes=[];SIG.busy=false;SIG.redo=false;st.sign[mk]={d,h:agrHash(),ts:Date.now(),by:mk};render();flash(contractDone()?'اكتمل العقد بتواقيع الجميع 🎉':'حُفظ توقيعك في المسودة.');}else b.disabled=false;});
 function finalContract(){const ps=P(),hd=st.holder||{};const prof=p=>(p.uid&&st.profiles[p.uid])||{};
-  const last=Math.max(...ps.map(p=>sigOf(p.k).ts));
+  const last=Math.max(...ps.map(p=>sigOf(p.k).ts),st.hsign?st.hsign.ts:0);
   return `<section class="panel fcon" id="contractDoc"><div class="row noprint" style="justify-content:space-between;align-items:center"><span class="tag good">✓ العقد النهائي مكتمل بتواقيع الجميع</span><button class="soft" id="ctPrint">🖨️ طباعة / PDF</button></div>
-  <h2 class="fct">عقد اتفاق شركاء مقهى «صُب»</h2><p class="fcd">تاريخ اكتمال التوقيع: ${fmtD(new Date(last).toISOString().slice(0,10))}</p>
+  <h2 class="fct">عقد اتفاق شركاء مقهى «صُب»</h2><p class="fcd">تاريخ اكتمال التوقيع: ${fmtD(ld(last))}</p>
   <h3>الأطراف</h3><ol>${ps.map(p=>{const pr=prof(p);return `<li><b>${esc(pr.full||p.name)}</b>${pr.nid?` — هوية رقم <span class="num">${esc(pr.nid)}</span>`:''} — نسبته <span class="num">${p.pct||0}٪</span></li>`;}).join('')}${hd.full?`<li><b>${esc(hd.full)}</b> — صاحبة السجل التجاري — نسبتها <span class="num">${holdPct()}٪</span></li>`:''}</ol>
   <p>ويُعامَل المقهى «صُب» كشريك رابع حصته <span class="num">${subSh()}٪</span> من الأرباح تُقتطع أولًا وتبقى في المحل، ويوزَّع الباقي على الأطراف حسب نسبهم.</p>
   <h3>البنود المتفق عليها</h3><ol class="fcl">${RULES.map(r=>{const n=(st.chk['r_'+r[0]]||{}).note;return `<li><b>${esc(r[1])}.</b> ${esc(n||r[2])}</li>`;}).join('')}</ol>
-  <h3>التواقيع</h3><div class="fsig">${ps.map(p=>{const g=sigOf(p.k),pr=prof(p);return `<div><div class="fsn">${esc(pr.full||p.name)}</div>${sigSvg(g.d)}<div class="fsd">التاريخ: ${fmtD(new Date(g.ts).toISOString().slice(0,10))}</div></div>`;}).join('')}${hd.full?`<div><div class="fsn">${esc(hd.full)}</div><div class="snone">يوقَّع عند التوثيق</div></div>`:''}</div>
+  <h3>التواقيع</h3><div class="fsig">${ps.map(p=>{const g=sigOf(p.k),pr=prof(p);return `<div><div class="fsn">${esc(pr.full||p.name)}</div>${sigSvg(g.d)}<div class="fsd">التاريخ: ${fmtD(ld(g.ts))}</div></div>`;}).join('')}${hd.full?`<div><div class="fsn">${esc(hd.full)}</div>${st.hsign?sigSvg(st.hsign.d)+`<div class="fsd">التاريخ: ${fmtD(ld(st.hsign.ts))}</div>`:'<div class="snone">لم توقّع بعد</div>'}</div>`:''}</div>
   <p class="sub noprint" style="margin-top:10px">هذا عقد اتفاق داخلي بين الشركاء. التوثيق الرسمي والصياغة القانونية يراجعها محامٍ.</p></section>`;}
 
 /* ===== توزيع الأرباح ===== */
@@ -1072,7 +1086,7 @@ function render(){const k=cur();
   editBar();chatAfter();hydrateThumbs();dateDecor();sigInit();cdTick();
   const mk=myKey();$('#who').textContent=mk?('أنت: '+pName(mk)):'';
   if(!$('#banner').firstChild||!flashT)$('#banner').innerHTML=bannerBase();}
-let rq=0;function schedule(){if((meEdit&&cur()==='me')||gEdit||(SIG.busy&&SIG.strokes.length&&cur()==='rules')){pending=true;return;}if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const a=document.activeElement;if(a&&a.matches&&a.matches('input:not([type=checkbox]):not([id^="f_"]),textarea,select')&&!a.id.startsWith('f_')){pending=true;return;}render();});}
+let rq=0;function schedule(){if((meEdit&&cur()==='me')||gEdit||(((SIG.busy&&SIG.strokes.length)||(HSIG.busy&&HSIG.strokes.length))&&cur()==='rules')){pending=true;return;}if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const a=document.activeElement;if(a&&a.matches&&a.matches('input:not([type=checkbox]):not([id^="f_"]),textarea,select')&&!a.id.startsWith('f_')){pending=true;return;}render();});}
 let pending=false;document.addEventListener('focusout',()=>{if(pending&&!(meEdit&&cur()==='me')&&!gEdit){pending=false;setTimeout(render,50);}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.wv==null)return;wv[t.dataset.wv]=t.value;const q=t.dataset.wv.split('_')[0];wv['open_'+q]=1;render();});
 document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.wq)wv['open_'+d.dataset.wq]=d.open?1:0;if(d.dataset&&d.dataset.mo)mopen[d.dataset.mo]=d.open;},true);
@@ -1167,6 +1181,7 @@ render();
   db.doc('cfg/main').onSnapshot(s=>{st.cfg=s.exists?s.data():null;CONTRACT=(st.cfg&&st.cfg.contractUrl)||'';resolveNames();schedule();},err);
   db.collection('profiles').onSnapshot(q=>{const o={};q.docs.forEach(x=>{o[x.id]=x.data();});st.profiles=o;schedule();},err);
   db.doc('holder/main').onSnapshot(s=>{st.holder=s.exists?s.data():null;schedule();},err);
+  db.doc('holder/sign').onSnapshot(s=>{st.hsign=s.exists&&s.data().d?s.data():null;schedule();},err);
   db.doc('tl/main').onSnapshot(s=>{st.tl=s.exists?s.data():null;schedule();},err);
   db.doc('budget/main').onSnapshot(s=>{st.bud=s.exists?s.data():null;schedule();},err);
   db.doc('calc/main').onSnapshot(s=>{st.calc=s.exists?s.data():null;schedule();},err);
