@@ -131,6 +131,19 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
 
 .upl{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13.5px;cursor:pointer;background:var(--surface)}
 .upl input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.atts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.att-w{position:relative}
+.att-b{padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer;overflow:hidden;opacity:1}
+.att-b .th{display:flex;align-items:center;justify-content:center;width:72px;height:72px;font-size:22px}
+.att-b .th img{width:100%;height:100%;object-fit:cover}
+.att-b .th.tx{width:auto;min-width:72px;max-width:180px;padding:0 10px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att-x{position:absolute;top:-6px;left:-6px;width:22px;height:22px;border-radius:50%;padding:0;font-size:12px;background:var(--bad);color:#fff;border:none;cursor:pointer}
+#viewer{position:fixed;inset:0;z-index:60;background:rgba(20,12,6,.92);display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#viewer .vw-bar{display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--bg)}
+#viewer .vw-bar .ghost{text-decoration:none}
+#viewer .vw-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;overflow:auto;color:#fff}
+#viewer img,#viewer video{max-width:100%;max-height:100%;border-radius:8px}
+#viewer iframe{width:100%;flex:1;min-height:60vh;border:0;background:#fff;border-radius:8px}
 /* الدردشة */
 .chat-list{display:flex;flex-direction:column;gap:10px;padding-bottom:12px}
 .msg{max-width:84%;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;overflow-wrap:anywhere}
@@ -439,11 +452,11 @@ function spend(){const m=money2();const T=thr();
   <label class="f">المبلغ شامل الضريبة<input id="f_sa" type="text" inputmode="decimal"></label><label class="f">التاريخ<input id="f_sd" type="date" value="${today()}"></label>
   <label class="f">دُفع من<select id="f_sp"><option value="co">حساب المنشأة</option>${P().map(p=>`<option value="${p.k}">جيب ${esc(p.name)}</option>`).join('')}</select></label>
   <label class="f">إن دفعه شريك<select id="f_st"><option value="capital">يُحسب من رأس ماله</option><option value="refund">يُسترد له</option></select></label>
-  <label class="f">فاتورة ضريبية؟<select id="f_sv"><option value="">لا</option><option value="1">نعم</option></select></label><label class="f">المورد أو ملاحظة<input id="f_sn"></label><button id="addSpend">سجّل</button></div></section>`;
+  <label class="f">فاتورة ضريبية؟<select id="f_sv"><option value="">لا</option><option value="1">نعم</option></select></label><label class="f">المورد أو ملاحظة<input id="f_sn"></label><div class="f"><span>المرفقات (فاتورة، صور، فيديو، ملف)</span><label class="upl" style="justify-content:center">📎 اختر أو صوّر<input type="file" multiple accept="image/*,video/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.heic" id="spNewFiles"></label><small id="spNewList">${SPF.length?SPF.map(f=>esc(f.name)).join('، '):'لا مرفقات'}</small></div><button id="addSpend">سجّل</button></div></section>`;
   if(!st.spend.length)return h+`<div class="empty">لا مصاريف بعد. أول مصروف (رسوم السجل، الإيجار، العربون) سجّلوه هنا.</div>`;
   h+=`<div class="list">${[...st.spend].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.ts||0)-(a.ts||0)).map(s=>{const a=apprState(s);
    return `<div class="item"><div class="hd"><div class="t">${esc(s.item)}<br><small>${esc(s.cat)} · <span class="num">${esc(s.date)}</span> · ${s.paidBy==='co'?'حساب المنشأة':'جيب '+esc(pName(s.paidBy))+(s.treat==='refund'?(s.refunded?' · استُرد':' · يُسترد'):' · من رأس ماله')}${s.note?' · '+esc(s.note):''}</small></div><b>${nb(s.amount)}</b></div>
-   <div class="row">${s.inv?tag('فاتورة محفوظة','good'):tag('بلا فاتورة','bad')} ${a.need?apprTags(s,'spend'):''} ${s.paidBy!=='co'&&s.treat==='refund'&&!s.refunded?`<button class="ghost" data-refund="${s.id}">تم الاسترداد</button>`:''} ${!s.inv?`<button class="ghost" data-inv="${s.id}">وصلت الفاتورة</button>`:''} ${(s.att||[]).map((a,i)=>`<button class="ghost" data-dl="${esc(a.id)}" data-name="${esc(a.name||'فاتورة')}">📎 الفاتورة${(s.att||[]).length>1?' '+(i+1):''}</button>`).join(' ')} <label class="upl">📷 ${(s.att||[]).length?'فاتورة أخرى':'صورة الفاتورة'}<input type="file" accept="image/*,application/pdf" data-spfile="${s.id}"></label> ${s.paidBy!=='co'&&!s.refunded?`<button class="ghost" data-treat="${s.id}">${s.treat==='refund'?'احسبه من رأس ماله':'اجعله يُسترد له'}</button>`:''}<span style="flex:1"></span><small>سجّله ${esc(who(s.by))}</small>${delBtn('spend',s.id)}</div></div>`;}).join('')}</div>`;
+   ${SED===s.id?spendEdit(s):''}${attStrip(s.att,SED===s.id?s.id:'')}<div class="row">${s.inv?tag('فاتورة محفوظة','good'):tag('بلا فاتورة','bad')} ${a.need?apprTags(s,'spend'):''} ${s.paidBy!=='co'&&s.treat==='refund'&&!s.refunded?`<button class="ghost" data-refund="${s.id}">تم الاسترداد</button>`:''} ${!s.inv?`<button class="ghost" data-inv="${s.id}">وصلت الفاتورة</button>`:''} <label class="upl">📎 ${(s.att||[]).length?'أضف مرفقًا':'أرفق فاتورة أو صورة أو فيديو'}<input type="file" multiple accept="image/*,video/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.heic" data-spfile="${s.id}"></label> <button class="ghost" data-sedit="${s.id}">✏️ تعديل</button> ${s.paidBy!=='co'&&!s.refunded?`<button class="ghost" data-treat="${s.id}">${s.treat==='refund'?'احسبه من رأس ماله':'اجعله يُسترد له'}</button>`:''}<span style="flex:1"></span><small>سجّله ${esc(who(s.by))}</small>${delBtn('spend',s.id)}</div></div>`;}).join('')}</div>`;
   return h;}
 
 function apprTags(o,col){const a=apprState(o),mk=myKey();const ap=o.appr||{};
@@ -466,7 +479,7 @@ function tasks(){const L=st.tasks;const done=L.filter(t=>t.done).length;
   return h;}
 
 let CONTRACT='';
-const contractCard=()=>`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><h3 style="margin:0">عقد الشراكة (مسودة)</h3><p class="sub" style="margin:2px 0 0">قرار: السجل مؤسسة باسم صاحبته المسجّلة في وزارة التجارة، ونوثّق عقد شراكة: 33٪ لكل شريك و${holdPct()}٪ لصاحبة السجل، وصُب شريك رابع بـ${subSh()}٪ من الأرباح. رأس المال صفر حاليًّا ويُحدَّد بملحق. يراجعه محامٍ قبل التوقيع.</p></div><div class="row">${(cfg()||{}).contractFile?`<button class="soft" data-dl="${esc(cfg().contractFile.id)}" data-name="${esc(cfg().contractFile.name||'عقد الشراكة.pdf')}">📄 افتح العقد</button>`:''}${CONTRACT?`<a class="btn-link" href="${CONTRACT}" target="_blank" rel="noopener">رابط العقد ↗</a>`:''}<label class="upl">⬆️ ${(cfg()||{}).contractFile?'ارفع نسخة أحدث':'ارفع العقد (PDF)'}<input type="file" accept="application/pdf,image/*" data-ctfile="1"></label></div></div>${(cfg()||{}).contractFile?`<small>آخر نسخة رفعها ${esc(pName(cfg().contractFile.by))} · <span class="num">${esc(cfg().contractFile.date||'')}</span></small>`:''}</section>`;
+const contractCard=()=>`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><h3 style="margin:0">عقد الشراكة (مسودة)</h3><p class="sub" style="margin:2px 0 0">قرار: السجل مؤسسة باسم صاحبته المسجّلة في وزارة التجارة، ونوثّق عقد شراكة: 33٪ لكل شريك و${holdPct()}٪ لصاحبة السجل، وصُب شريك رابع بـ${subSh()}٪ من الأرباح. رأس المال صفر حاليًّا ويُحدَّد بملحق. يراجعه محامٍ قبل التوقيع.</p></div><div class="row">${(cfg()||{}).contractFile?`<button class="soft" data-view="${esc(cfg().contractFile.id)}" data-k="${esc(cfg().contractFile.k||'file')}" data-name="${esc(cfg().contractFile.name||'عقد الشراكة.pdf')}">📄 افتح العقد</button>`:''}${CONTRACT?`<a class="btn-link" href="${CONTRACT}" target="_blank" rel="noopener">رابط العقد ↗</a>`:''}<label class="upl">⬆️ ${(cfg()||{}).contractFile?'ارفع نسخة أحدث':'ارفع العقد (PDF)'}<input type="file" accept="application/pdf,image/*" data-ctfile="1"></label></div></div>${(cfg()||{}).contractFile?`<small>آخر نسخة رفعها ${esc(pName(cfg().contractFile.by))} · <span class="num">${esc(cfg().contractFile.date||'')}</span></small>`:''}</section>`;
 function rules(){const ps=P(),mk=myKey();
   let h=`<section><h2>اتفاق الشركاء</h2><p class="sub">${RULES.length} بندًا كل واحد منها جاء من مشكلة حقيقية. يوافق كل شريك بنفسه، ويُكتب ما اتفقتم عليه في خانة «ما اتفقنا عليه»، ثم يُنقل كل ذلك إلى عقد الشراكة الموثّق. هذا تنظيم عملي، والصياغة القانونية للعقد يراجعها محامٍ.</p></section>`+contractCard()+`<div class="list">`;
   RULES.forEach(r=>{const c=st.chk['r_'+r[0]]||{};const ok=c.ok||{};const all=ps.every(p=>ok[p.k]);
@@ -740,13 +753,56 @@ document.addEventListener('keydown',e=>{if(e.target&&e.target.id==='f_chat'&&e.k
 
 
 /* ===== فواتير المصاريف والعقد ===== */
-async function upOne(f){const isImg=/^image\//.test(f.type);if(f.size>25*1024*1024)throw new Error('الملف أكبر من 25 ميجا');const blob=isImg?await shrink(f):f;
-  const name=isImg?(f.name||'photo').replace(/\.\w+$/,'')+'.jpg':(f.name||'file');const r=await window.subUpload(blob,name,isImg?'image/jpeg':(f.type||'application/octet-stream'));MEDIA[r.id]=URL.createObjectURL(blob);return {k:isImg?'img':'file',id:r.id,name};}
+let SPF=[],SED=null;
+function attStrip(att,editId){att=att||[];if(!att.length)return '';
+  return `<div class="atts">${att.map((a,i)=>{const lab=a.k==='img'?'':a.k==='vid'?'🎥 فيديو':'📄 '+esc(a.name||'ملف');
+    const th=a.k==='img'?`<span class="th" data-th="${esc(a.id)}">${MEDIA[a.id]?`<img src="${MEDIA[a.id]}" alt="مرفق">`:'🖼️'}</span>`:`<span class="th tx">${lab}</span>`;
+    return `<span class="att-w"><button class="att-b" data-view="${esc(a.id)}" data-k="${esc(a.k)}" data-name="${esc(a.name||'')}" aria-label="عرض المرفق">${th}</button>${editId?`<button class="att-x" data-satdel="${editId}|${i}" aria-label="حذف المرفق">✕</button>`:''}</span>`;}).join('')}</div>`;}
+function spendEdit(s){return `<div class="panel" style="margin:8px 0"><div class="fgrid">
+  <label class="f">البيان<input id="f_es_item" value="${esc(s.item)}"></label>
+  <label class="f">المبلغ شامل الضريبة<input id="f_es_amount" type="text" inputmode="decimal" value="${esc(s.amount)}"></label>
+  <label class="f">التاريخ<input id="f_es_date" type="date" value="${esc(s.date)}"></label>
+  <label class="f">التصنيف<select id="f_es_cat">${ICATS.concat(['الإيجار','أخرى']).map(c=>`<option${c===s.cat?' selected':''}>${c}</option>`).join('')}</select></label>
+  <label class="f">المورد أو ملاحظة<input id="f_es_note" value="${esc(s.note)}"></label></div>
+  <small>تغيير المبلغ يرجّع المصروف لموافقة الشركاء إذا كان فوق الحد. وتقدر تحذف أي مرفق من ✕.</small>
+  <div class="row" style="margin-top:8px"><button data-ssave="${s.id}">حفظ التعديل</button><button class="ghost" data-scancel="1">إلغاء</button></div></div>`;}
+function hydrateThumbs(){document.querySelectorAll('[data-th]').forEach(el=>{const id=el.dataset.th;if(MEDIA[id]){if(!el.querySelector('img'))el.innerHTML=`<img src="${MEDIA[id]}" alt="مرفق">`;return;}
+  if(MEDIA[id]===undefined&&window.subFile){MEDIA[id]=null;window.subFile(id).then(u=>{MEDIA[id]=u;document.querySelectorAll(`[data-th="${id}"]`).forEach(x=>x.innerHTML=`<img src="${u}" alt="مرفق">`);}).catch(()=>{MEDIA[id]=undefined;});}});}
+function closeViewer(){const v=document.getElementById('viewer');if(v)v.remove();}
+async function openViewer(id,k,name){closeViewer();const v=document.createElement('div');v.id='viewer';v.setAttribute('role','dialog');v.setAttribute('aria-modal','true');
+  v.innerHTML=`<div class="vw-bar"><b>${esc(name||'مرفق')}</b><span style="flex:1"></span><a class="ghost" id="vwDl" download="${esc(name||'file')}">تنزيل</a><button class="ghost" id="vwX">إغلاق ✕</button></div><div class="vw-body"><span class="sub">جارٍ التحميل…</span></div>`;
+  document.body.appendChild(v);
+  try{const u=MEDIA[id]||await window.subFile(id);MEDIA[id]=u;const b=v.querySelector('.vw-body');v.querySelector('#vwDl').href=u;
+    if(k==='img')b.innerHTML=`<img src="${u}" alt="${esc(name||'صورة')}">`;
+    else if(k==='vid')b.innerHTML=`<video src="${u}" controls playsinline autoplay></video>`;
+    else if(/\.pdf$/i.test(name||'')||k==='file'&&/pdf/i.test(name||''))b.innerHTML=`<iframe src="${u}" title="${esc(name||'ملف')}"></iframe><a class="btn-link" href="${u}" target="_blank" rel="noopener" style="margin-top:8px">فتح في صفحة كاملة ↗</a>`;
+    else b.innerHTML=`<p>هذا الملف يُفتح بعد التنزيل.</p><a class="btn-link" href="${u}" download="${esc(name||'file')}">تنزيل «${esc(name||'الملف')}»</a>`;}
+  catch(x){v.querySelector('.vw-body').innerHTML='<p>تعذّر تحميل المرفق.</p>';}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeViewer();});
+document.addEventListener('click',async e=>{
+  if(e.target.closest('#vwX')||e.target.id==='viewer'){closeViewer();return;}
+  const vb=e.target.closest('[data-view]');if(vb){e.preventDefault();openViewer(vb.dataset.view,vb.dataset.k,vb.dataset.name);return;}
+  const ed=e.target.closest('[data-sedit]');if(ed){SED=SED===ed.dataset.sedit?null:ed.dataset.sedit;render();return;}
+  if(e.target.closest('[data-scancel]')){SED=null;render();return;}
+  const sv=e.target.closest('[data-ssave]');if(sv){const id=sv.dataset.ssave,s=st.spend.find(x=>x.id===id);if(!s)return;
+    const a=+toLat(val('f_es_amount')),it=val('f_es_item');if(!a||!it){flash('اكتب البيان والمبلغ.','warn');return;}
+    const patch={item:it,amount:a,date:val('f_es_date')||s.date,cat:val('f_es_cat'),note:val('f_es_note')};
+    if(a!==+s.amount){patch.appr=myKey()?{[myKey()]:Date.now()}:{};patch.rej={};}
+    if(await w(()=>db.doc('spend/'+id).update(patch),'عدّل مصروفًا: '+it+(a!==+s.amount?' (المبلغ '+money(s.amount)+' ← '+money(a)+')':''))){SED=null;render();}return;}
+  const ad=e.target.closest('[data-satdel]');if(ad){const [id,i]=ad.dataset.satdel.split('|');const s=st.spend.find(x=>x.id===id);if(!s)return;
+    if(confirmDel!=='att'+id+i){confirmDel='att'+id+i;flash('اضغط ✕ مرة ثانية لحذف المرفق.','warn');return;}confirmDel=null;
+    const att=(s.att||[]).filter((_,j)=>j!==+i);await w(()=>db.doc('spend/'+id).update({att}),'حذف مرفقًا من مصروف: '+s.item);return;}
+});
+
+async function upOne(f){const isImg=/^image\//.test(f.type)&&!/heic|heif/i.test(f.type),isVid=/^video\//.test(f.type);if(f.size>25*1024*1024)throw new Error('«'+f.name+'» أكبر من 25 ميجا');const blob=isImg?await shrink(f):f;
+  const name=isImg?(f.name||'photo').replace(/\.\w+$/,'')+'.jpg':(f.name||'file');const r=await window.subUpload(blob,name,isImg?'image/jpeg':(f.type||'application/octet-stream'));MEDIA[r.id]=URL.createObjectURL(blob);return {k:isImg?'img':isVid?'vid':'file',id:r.id,name,mime:isImg?'image/jpeg':(f.type||'')};}
+async function upMany(files){const out=[];let i=0;for(const f of files){i++;flash('جارٍ رفع المرفقات '+i+' من '+files.length+'…');out.push(await upOne(f));}return out;}
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset)return;
-  if(t.dataset.spfile!=null){e.stopImmediatePropagation();const id=t.dataset.spfile,f=t.files[0];t.value='';if(!f)return;flash('جارٍ رفع الفاتورة…');
-    try{const a=await upOne(f);const s=st.spend.find(x=>x.id===id)||{};await db.doc('spend/'+id).update({att:(s.att||[]).concat([a]),inv:true});flash('حُفظت الفاتورة ✓');}catch(x){flash('تعذّر رفع الفاتورة: '+((x&&x.message)||''),'bad');}return;}
+  if(t.id==='spNewFiles'){e.stopImmediatePropagation();SPF=SPF.concat([...t.files]);t.value='';const l=document.getElementById('spNewList');if(l)l.textContent=SPF.map(f=>f.name).join('، ');return;}
+  if(t.dataset.spfile!=null){e.stopImmediatePropagation();const id=t.dataset.spfile,fs=[...t.files];t.value='';if(!fs.length)return;
+    try{const a=await upMany(fs);const s=st.spend.find(x=>x.id===id)||{};await db.doc('spend/'+id).update({att:(s.att||[]).concat(a),inv:true});flash('حُفظت المرفقات ✓ ('+a.length+')');}catch(x){flash('تعذّر رفع المرفقات: '+((x&&x.message)||''),'bad');}return;}
   if(t.dataset.ctfile!=null){e.stopImmediatePropagation();const f=t.files[0];t.value='';if(!f)return;flash('جارٍ رفع العقد…');
-    try{const a=await upOne(f);await saveCfg({contractFile:{id:a.id,name:a.name,by:myKey(),date:today()}});flash('حُفظ العقد ✓');}catch(x){flash('تعذّر رفع العقد: '+((x&&x.message)||''),'bad');}}},true);
+    try{const a=await upOne(f);await saveCfg({contractFile:{id:a.id,k:a.k,name:a.name,by:myKey(),date:today()}});flash('حُفظ العقد ✓');}catch(x){flash('تعذّر رفع العقد: '+((x&&x.message)||''),'bad');}}},true);
 
 /* ===== العرض ===== */
 const V={chat:chatv,tl,me,menu,staff,wi,home,partners,budget,site,spend,tasks,rules,dec,calc,log:logv};
@@ -760,7 +816,7 @@ function render(){const k=cur();
   if(aid){const e=document.getElementById(aid);if(e){e.focus();if(sel)try{e.setSelectionRange(sel[0],sel[1]);}catch(x){}}}
   document.querySelectorAll('input[type=number],input[type=date],input[inputmode=numeric],input[inputmode=decimal]').forEach(e=>{e.lang='en';e.dir='ltr';});
   const iq=document.getElementById('iq');if(iq&&lastQ){iq.value=lastQ;applyQ(lastQ);}
-  editBar();chatAfter();
+  editBar();chatAfter();hydrateThumbs();
   const mk=myKey();$('#who').textContent=mk?('أنت: '+pName(mk)):'';
   if(!$('#banner').firstChild||!flashT)$('#banner').innerHTML=bannerBase();}
 let rq=0;function schedule(){if((meEdit&&cur()==='me')||gEdit){pending=true;return;}if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const a=document.activeElement;if(a&&a.matches&&a.matches('input:not([type=checkbox]):not([id^="f_"]),textarea,select')&&!a.id.startsWith('f_')){pending=true;return;}render();});}
@@ -840,7 +896,8 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   else if(id==='addItem'){const n=val('f_in');if(!n){flash('اكتب اسم البند.','warn');return;}if(await w(()=>db.collection('items').add({name:n,cat:val('f_ic'),st:val('f_is'),est:num(val('f_ie')),actual:'',supplier:'',quotes:0,note:val('f_inote'),inv:false,by:myId||'',ts:now}),'أضاف بندًا: '+n)){['f_in','f_ie','f_inote'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
   else if(id==='loadItems'){b.disabled=true;let i=0;for(const t of ITEMS_T){await db.collection('items').add({name:t[1],cat:t[0],st:'need',est:'',actual:'',owner:'',note:'',inv:false,by:myId||'',ts:now+(i++)}).catch(()=>{});}log('أضاف قائمة التجهيزات المقترحة');}
   else if(id==='addSpend'){const a=+val('f_sa'),it=val('f_si');if(!a||!it){flash('اكتب البيان والمبلغ.','warn');return;}const pb=val('f_sp');
-    if(await w(()=>db.collection('spend').add({item:it,cat:val('f_sc'),amount:a,date:val('f_sd')||today(),paidBy:pb,treat:pb==='co'?'':val('f_st'),inv:!!val('f_sv'),note:val('f_sn'),appr:myKey()?{[myKey()]:now}:{},by:myId||'',ts:now}),'سجّل مصروفًا: '+it+' '+money(a)+(a>=thr()?' (ينتظر موافقة الجميع)':''))){['f_si','f_sa','f_sn'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
+    let att=[];if(SPF.length){b.disabled=true;try{att=await upMany(SPF);}catch(x){b.disabled=false;flash('تعذّر رفع المرفقات: '+((x&&x.message)||''),'bad');return;}b.disabled=false;SPF=[];}
+    if(await w(()=>db.collection('spend').add({item:it,cat:val('f_sc'),amount:a,date:val('f_sd')||today(),paidBy:pb,treat:pb==='co'?'':val('f_st'),inv:!!val('f_sv')||att.length>0,att,note:val('f_sn'),appr:myKey()?{[myKey()]:now}:{},by:myId||'',ts:now}),'سجّل مصروفًا: '+it+' '+money(a)+(a>=thr()?' (ينتظر موافقة الجميع)':''))){['f_si','f_sa','f_sn'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
   else if(id==='addTask'){const t=val('f_tt');if(!t){flash('اكتب المهمة.','warn');return;}if(await w(()=>db.collection('tasks').add({title:t,grp:val('f_tg')||'أخرى',owner:val('f_to'),due:val('f_td'),note:'',done:false,by:myId||'',ts:now}),'أضاف مهمة: '+t)){const x=document.getElementById('f_tt');if(x)x.value='';}}
   else if(id==='loadTasks'){b.disabled=true;let i=0;for(const t of TASKS_T){const done=t[1]==='استخراج السجل التجاري';await db.collection('tasks').add({title:t[1],grp:t[0],owner:'',due:'',note:'',done,doneBy:'',by:myId||'',ts:now+(i++)}).catch(()=>{});}log('أضاف قائمة التراخيص والمهام المقترحة');}
   else if(id==='addDec'){const t=val('f_dt');if(!t){flash('اكتب القرار.','warn');return;}const a=num(val('f_da'));if(await w(()=>db.collection('dec').add({title:t,amount:a,note:val('f_dn'),appr:myKey()?{[myKey()]:now}:{},rej:{},by:myId||'',ts:now}),'طرح قرارًا: '+t+(a?' ('+money(a)+')':''))){['f_dt','f_da','f_dn'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
