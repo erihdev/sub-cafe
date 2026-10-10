@@ -170,6 +170,7 @@ details.item{display:block;max-width:100%}details.item>*{max-width:100%;margin-t
 .tw{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 img,video,iframe{max-width:100%}
 .rhow ol{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:6px;font-size:14px;line-height:1.7}
+.rpp{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}.rpp li{display:grid;grid-template-columns:minmax(80px,auto) 1fr auto;gap:8px;align-items:center;font-size:13.5px}.rpp .bar{height:6px}
 .rstat,.rfil{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.rfil button{padding:5px 12px;font-size:13px}
 .rcard{gap:8px;padding:14px}.rcard.r-all{border-color:var(--good)}.rcard.r-ed{border-color:var(--bad)}
 .rtop{display:flex;justify-content:space-between;align-items:center;gap:8px}.rno{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
@@ -557,8 +558,8 @@ function rules(){const ps=P(),mk=myKey();
    <li><b>طلبات التعديل:</b> تظهر للجميع تحت البند. نتناقش في الدردشة، ثم تُكتب الصيغة النهائية في «الصيغة المتفق عليها» (من زر ✏️ تعديل في الأعلى).</li>
    <li><b>إذا تغيّرت الصيغة</b> تُلغى الموافقات السابقة على هذا البند، ويوافق الجميع من جديد على النص الجديد.</li>
    <li><b>بعد اكتمال البنود</b> تُنقل إلى عقد الشراكة، ويراجع الصياغة القانونية محامٍ قبل التوقيع.</li></ol></section>
-  <section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><b>التقدم</b><span class="num">${nAll} / ${RULES.length} متفق عليه</span></div><div class="bar" aria-label="نسبة الاتفاق"><i style="width:${Math.round(nAll/RULES.length*100)}%"></i></div>
-   <div class="rstat">${tag(nAll+' متفق عليه','good')}${nEd?tag(nEd+' فيه طلب تعديل','bad'):''}${mk?tag(mine?mine+' ينتظر رأيك':'أبديت رأيك في الكل',mine?'warn':'good'):''}</div>
+  <section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><b>التقدم</b><span class="num">${nAll} / ${RULES.length} بندًا وافق عليها الجميع</span></div><div class="bar" aria-label="نسبة الاتفاق"><i style="width:${Math.round(nAll/RULES.length*100)}%"></i></div>
+   <ul class="rpp">${ps.map(p=>{const n=RULES.filter(r=>{const x=rState(r[0]).v[p.k];return x&&x.s==='ok';}).length,e=RULES.filter(r=>{const x=rState(r[0]).v[p.k];return x&&x.s==='edit';}).length;return `<li><span>${esc(p.name)}${p.k===mk?' (أنت)':''}</span><span class="bar"><i style="width:${Math.round(n/RULES.length*100)}%"></i></span><span class="num">${n}/${RULES.length}${e?` · ✏️${e}`:''}</span></li>`;}).join('')}</ul><p class="sub" style="margin:4px 0 0">البند يُحسب «متفقًا عليه» فقط إذا وافق عليه الشركاء الثلاثة.</p><div class="rstat">${tag(nAll+' متفق عليه من الجميع','good')}${nEd?tag(nEd+' فيه طلب تعديل','bad'):''}${mk?tag(mine?mine+' ينتظر رأيك':'أبديت رأيك في الكل',mine?'warn':'good'):''}</div>
    <div class="rfil" role="group" aria-label="تصفية البنود">${[['all','الكل'],['mine','ينتظر رأيي'],['edit','فيه تعديل'],['done','متفق عليه']].filter(f=>f[0]!=='mine'||mk).map(f=>`<button class="${RF===f[0]?'':'soft'}" data-rfil="${f[0]}">${f[1]}</button>`).join('')}</div></section>`+contractCard()+`<div class="list">`;
   let shown=0;
   RULES.forEach((r,i)=>{const {c,v}=rState(r[0]);const s=S[i];const me=mk?v[mk]:null;
