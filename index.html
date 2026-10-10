@@ -169,6 +169,19 @@ html,body{overflow-x:hidden;max-width:100%}
 details.item{display:block;max-width:100%}details.item>*{max-width:100%;margin-top:6px}details.item .fgrid{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))}
 .tw{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 img,video,iframe{max-width:100%}
+.rhow ol{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:6px;font-size:14px;line-height:1.7}
+.rstat,.rfil{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.rfil button{padding:5px 12px;font-size:13px}
+.rcard{gap:8px;padding:14px}.rcard.r-all{border-color:var(--good)}.rcard.r-ed{border-color:var(--bad)}
+.rtop{display:flex;justify-content:space-between;align-items:center;gap:8px}.rno{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
+.rt{margin:0;font-size:16px;line-height:1.5;overflow-wrap:anywhere}.rx{margin:0;line-height:1.75;overflow-wrap:anywhere}
+.rwhy{margin:0;font-size:13.5px;color:var(--muted);background:var(--warn-soft);border-radius:8px;padding:7px 10px;line-height:1.7}
+.ragreed{border:1px dashed var(--accent);border-radius:8px;padding:8px 10px;display:grid;gap:4px}.ragreed textarea{width:100%;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface)}.ragreed textarea:disabled{border-color:transparent;padding:0;resize:none;opacity:1;color:var(--ink,inherit)}.ragreed:has(textarea:disabled:placeholder-shown){display:none}
+.rpl{list-style:none;margin:0;padding:0;display:grid;gap:4px;border-top:1px solid var(--line);padding-top:8px}
+.rpl li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;font-size:13.5px}.rpl .ps{font-weight:600}.rpl li.ok .ps{color:var(--good)}.rpl li.edit .ps{color:var(--bad)}.rpl li.wait .ps{color:var(--muted)}
+.rpl q{flex-basis:100%;quotes:none;background:var(--bad-soft);border-radius:8px;padding:6px 10px;font-size:13.5px;overflow-wrap:anywhere}
+.rvote{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rvote button{min-height:44px;font-size:15px}
+.rvote button.on.ok{background:var(--good);border-color:var(--good);color:#fff}.rvote button.on.ed{background:var(--bad);border-color:var(--bad);color:#fff}
+.redit{display:grid;gap:8px}.redit textarea{width:100%}.rhint{color:var(--warn)}
 @media (max-width:420px){#tagline,.brand .who{display:none}.brand{gap:8px;padding:8px 10px}.brand img{height:40px}.brand button{padding:4px 9px}}
 @media (min-width:1100px){main,.tabs,.brand{max-width:1080px}}
 /* الدردشة */
@@ -319,26 +332,26 @@ const TASKS_T=[
 /* اتفاق الشركاء: كل بند مبني على مشكلة شائعة في الشراكات */
 const RULES=[
  ['entity','شكل الكيان يناسب ثلاثة شركاء','السجل الحالي «مؤسسة»، والمؤسسة نظامًا ملك لشخص واحد هو صاحب السجل. الخيارات: التحويل إلى شركة ذات مسؤولية محدودة بأسماء الثلاثة ونسبهم، أو عقد شراكة موثّق يحفظ حق الشريكين الآخرين إلى حين التحويل. يُحسم مع محامٍ أو محاسب قبل ضخ رأس المال.','المنشأة باسم شريك واحد، فكل الحسابات والعقود باسمه وحده.'],
- ['quotes','ثلاثة عروض أسعار مكتوبة لأي بند فوق 10 آلاف','تُرفق العروض في ملاحظة البند، ويُختار أحدها بقرار في قسم «القرارات».','متفق عليه في ملف الميزانية.'],
- ['actual','شخص واحد يسجّل السعر الفعلي: مسؤول التجهيز','الاعتراض بتعليق أو قرار، لا بتعديل صامت على رقم. حالة كل بند تمر: معلّق ← عرض مستلم ← معتمد ← مُشترى.','متفق عليه في ملف الميزانية. حدّدوا مسؤول التجهيز في «الشركاء».'],
- ['related','عقد توريد مكتوب مع مورد البن','إذا كان مورد البن مرتبطًا بأحد الشركاء (شريك في الطرفين). يُكتب السعر وطريقة تعديله والكميات وشروط الدفع والجودة، ويوافق عليه الشركاء الآخرون، حتى لا يُفهم أي سعر لاحقًا على أنه محاباة لطرف.',''],
- ['contract','عقد شراكة مكتوب وموثّق','النسب، ورأس مال كل شريك وموعد دفعه، ودور كل واحد، ومن يدير يوميًّا.','الشراكة باسم شريك واحد في السجل، وتفاصيلها غير موثّقة رسميًّا.'],
+ ['quotes','ثلاثة عروض أسعار مكتوبة لأي بند فوق 10 آلاف','تُرفق العروض مع البند، ويُختار أحدها بقرار في قسم «القرارات».','شراء معدة غالية بسعر أعلى من السوق لأن أحدًا لم يقارن.'],
+ ['actual','شخص واحد يسجّل السعر الفعلي: مسؤول التجهيز','الاعتراض بتعليق أو قرار، لا بتعديل صامت على رقم. حالة كل بند تمر: معلّق ← عرض مستلم ← معتمد ← مُشترى.','كل شريك يعدّل الرقم من جهته، فلا يُعرف السعر الصحيح ولا من غيّره.'],
+ ['related','عقد توريد مكتوب مع مورد البن','إذا كان مورد البن مرتبطًا بأحد الشركاء (شريك في الطرفين). يُكتب السعر وطريقة تعديله والكميات وشروط الدفع والجودة، ويوافق عليه الشركاء الآخرون، حتى لا يُفهم أي سعر لاحقًا على أنه محاباة لطرف.','سعر بن يرتفع دون اتفاق، فيشك الشركاء الآخرون أن فيه مصلحة لطرف.'],
+ ['contract','عقد شراكة مكتوب وموثّق','النسب، ورأس مال كل شريك وموعد دفعه، ودور كل واحد، ومن يدير يوميًّا.','خلاف لاحق على النسب أو رأس المال لأن الاتفاق كان شفهيًّا.'],
  ['bank','حساب بنكي باسم المنشأة من اليوم الأول، ولا يُصرف شيء من الحسابات الشخصية بلا تسجيل','أي مبلغ يدفعه شريك من جيبه يُسجَّل هنا فورًا ويُحدَّد: يُحسب من رأس ماله أو يُسترد.','مصروفات تأسيس تُدفع من حسابات شخصية ولا تُسجَّل في وقتها.'],
  ['bankview','كل الشركاء يطّلعون على الحساب البنكي','صلاحية اطلاع لكل شريك في تطبيق البنك، أو كشف شهري يُرفع هنا.','شريك واحد فقط يدخل البنك، فتتعذّر المطابقة على الباقين.'],
  ['dual','موافقة ثانية في البنك على التحويلات الكبيرة','تفعيل «موافق ثانٍ» لأي تحويل فوق حد القرار المشترك، وحد يومي معقول.','مستخدم بنكي واحد يُنشئ التحويل ويعتمده بحد مرتفع جدًّا.'],
  ['threshold','حد القرار المشترك مكتوب','أقل منه يقرره المسؤول ويُبلغ، وأعلى منه يحتاج موافقة الجميع هنا في قسم القرارات قبل الدفع.','مشتريات بآلاف الريالات تُعتمد في دقائق بلا حد مكتوب.'],
  ['roles','الأدوار ورواتب الشركاء العاملين مكتوبة','من يعمل ومن لا يعمل، وراتب كل شريك عامل، وكيف يتغيّر.','يتغيّر راتب شريك عامل دون محضر.'],
  ['dist','سياسة توزيع الأرباح','كل ربع بعد الإقفال، على ربح الاستهلاك الفعلي لا المشتريات، بعد تجنيب الضريبة. صُب شريك رابع: حصته تُقتطع أولًا وتبقى في المحل، والباقي للشركاء حسب نسبهم، بمحضر يوقّعه الجميع.','يُوزَّع ربح أكبر من الحقيقي لأن الحساب على المشتريات لا الاستهلاك، ويتأخر محضر التوزيع.'],
- ['draws','جاري الشريك','أي سحب أو سلفة لشريك تُسجَّل وتُخصم من نصيبه عند التوزيع.',''],
+ ['draws','جاري الشريك','أي سحب أو سلفة لشريك تُسجَّل وتُخصم من نصيبه عند التوزيع.','سلف صغيرة متكررة تُنسى، ثم يختلف الشركاء عند التوزيع.'],
  ['systems','كل الأنظمة باسم المنشأة وبإيميل مشترك','نقاط البيع، والمحاسبة، والموارد البشرية، والتطبيقات. كلمات المرور في مدير كلمات مرور لا في مجموعات واتساب.','كلمات مرور الأنظمة مكتوبة نصًّا في مجموعات واتساب يدخلها ويخرج منها أشخاص.'],
  ['invoices','فاتورة ضريبية لكل أصل ومصروف','لا يُدفع لمقاول أو مورد بلا عرض سعر مكتوب وفاتورة نهائية.','أصول بمئات الآلاف بلا فاتورة نهائية.'],
- ['assets','سجل أصول من اليوم الأول','كل معدة بسعرها وتاريخها وفاتورتها، وهو قسم «الموقع والتجهيزات» هنا.',''],
+ ['assets','سجل أصول من اليوم الأول','كل معدة بسعرها وتاريخها وفاتورتها، وهو قسم «الموقع والتجهيزات» هنا.','عند البيع أو خروج شريك لا يُعرف ما الذي تملكه المنشأة وبكم.'],
  ['cash','إيداع النقد بانتظام','نقد الصندوق يُودَع كل أسبوع على الأقل ويُطابَق مع تقرير نقاط البيع.','نقد كبير يبقى في الصندوق أسابيع دون إيداع.'],
  ['contracts','عقود الموظفين في قوى قبل أول يوم','لا يبدأ أحد العمل بعقد شفهي.','موظفون يبدؤون العمل بلا عقد مكتوب.'],
  ['recipes','وصفات المنتجات وتكلفتها كاملة في النظام','قبل الافتتاح، حتى يكون هامش كل منتج حقيقيًّا.','منتجات تظهر تكلفتها شبه صفر لأن وصفاتها ناقصة.'],
- ['report','تقرير شهري لكل الشركاء','خلال 7 أيام من نهاية الشهر: المبيعات، الربح، النقد، الضريبة، القرارات.',''],
- ['exit','خروج شريك أو بيع حصته','طريقة تقييم الحصة، وأولوية الشراء للشركاء الباقين، ومدة الإشعار.',''],
- ['dispute','حل الخلاف','عند التعادل أو الخلاف: من يُرجَّح قوله، أو وسيط أو تحكيم متفق عليه.',''],
+ ['report','تقرير شهري لكل الشركاء','خلال 7 أيام من نهاية الشهر: المبيعات، الربح، النقد، الضريبة، القرارات.','شريك لا يعرف وضع المحل إلا عند المشكلة.'],
+ ['exit','خروج شريك أو بيع حصته','طريقة تقييم الحصة، وأولوية الشراء للشركاء الباقين، ومدة الإشعار.','شريك يريد الخروج ولا يوجد اتفاق على قيمة حصته، فيتوقف العمل.'],
+ ['dispute','حل الخلاف','عند التعادل أو الخلاف: من يُرجَّح قوله، أو وسيط أو تحكيم متفق عليه.','قرار يتعطّل أسابيع لأن الشركاء منقسمون ولا طريقة متفق عليها للحسم.'],
  ['backup','لا يُغلق نظام قبل تصدير بياناته','أي تغيير لنظام محاسبة أو نقاط بيع يسبقه تصدير كامل.','نظام يُطفأ قبل تصدير بياناته فتضيع.']];
 const IST=Object.fromEntries(ISTAT.map(s=>[s[0],s]));IST.need=IST.pend;IST.done=IST.bought;IST.skip=IST.later;
 const BUD0={months:4,cont:0,monthly:[['الإيجار','ثابت — عقد 20 سنة',4000],['الرواتب والتأمينات','مدير + 2 باريستا + مساعد',16000],['الكهرباء والماء','تكييف بدورين في حر جازان',3000],['الصيانة والمستهلكات','أكواب، مناديل، تنظيف، صيانة دورية',2000],['التسويق المستمر','بعد حملة الافتتاح',1500],['رسوم الشبكة والأنظمة والإنترنت','مدى ≈ 1٪ من المبيعات',900],['متفرقات','',1000]]};
@@ -518,13 +531,51 @@ function tasks(){const L=st.tasks;const done=L.filter(t=>t.done).length;
 
 let CONTRACT='';
 const contractCard=()=>`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><h3 style="margin:0">عقد الشراكة (مسودة)</h3><p class="sub" style="margin:2px 0 0">قرار: السجل مؤسسة باسم صاحبته المسجّلة في وزارة التجارة، ونوثّق عقد شراكة: 33٪ لكل شريك و${holdPct()}٪ لصاحبة السجل، وصُب شريك رابع بـ${subSh()}٪ من الأرباح. رأس المال صفر حاليًّا ويُحدَّد بملحق. يراجعه محامٍ قبل التوقيع.</p></div><div class="row">${(cfg()||{}).contractFile?`<button class="soft" data-view="${esc(cfg().contractFile.id)}" data-k="${esc(cfg().contractFile.k||'file')}" data-name="${esc(cfg().contractFile.name||'عقد الشراكة.pdf')}">📄 افتح العقد</button>`:''}${CONTRACT?`<a class="btn-link" href="${CONTRACT}" target="_blank" rel="noopener">رابط العقد ↗</a>`:''}<label class="upl">⬆️ ${(cfg()||{}).contractFile?'ارفع نسخة أحدث':'ارفع العقد (PDF)'}<input type="file" accept="application/pdf,image/*" data-ctfile="1"></label></div></div>${(cfg()||{}).contractFile?`<small>آخر نسخة رفعها ${esc(pName(cfg().contractFile.by))} · ${fmtD(cfg().contractFile.date||'')}</small>`:''}</section>`;
+let RF='all';
+function rState(id){const c=st.chk['r_'+id]||{};const v={};const ok=c.ok||{},ed=c.edit||{};P().forEach(p=>{if(ed[p.k]&&ed[p.k].text)v[p.k]={s:'edit',text:ed[p.k].text,ts:ed[p.k].ts};else if(ok[p.k])v[p.k]={s:'ok',ts:ok[p.k]};});return {c,v};}
+function rStatus(id){const ps=P(),{v}=rState(id);const okN=ps.filter(p=>v[p.k]&&v[p.k].s==='ok').length,edN=ps.filter(p=>v[p.k]&&v[p.k].s==='edit').length;return {okN,edN,wait:ps.length-okN-edN,all:okN===ps.length};}
 function rules(){const ps=P(),mk=myKey();
-  let h=`<section><h2>اتفاق الشركاء</h2><p class="sub">${RULES.length} بندًا كل واحد منها جاء من مشكلة حقيقية. يوافق كل شريك بنفسه، ويُكتب ما اتفقتم عليه في خانة «ما اتفقنا عليه»، ثم يُنقل كل ذلك إلى عقد الشراكة الموثّق. هذا تنظيم عملي، والصياغة القانونية للعقد يراجعها محامٍ.</p></section>`+contractCard()+`<div class="list">`;
-  RULES.forEach(r=>{const c=st.chk['r_'+r[0]]||{};const ok=c.ok||{};const all=ps.every(p=>ok[p.k]);
-   h+=`<div class="item"><div class="hd"><div class="t">${esc(r[1])}</div>${all?tag('اتفق الجميع','good'):tag(ps.filter(p=>ok[p.k]).length+' من '+ps.length,'warn')}</div><div>${esc(r[2])}</div>${r[3]?`<small>مثال شائع: ${esc(r[3])}</small>`:''}
-   <label class="f">ما اتفقنا عليه<textarea id="rn_${r[0]}" data-rnote="${r[0]}" placeholder="مثال: الحد 10,000 ريال، والتوزيع كل ربع بنسبة 70٪ من الربح">${esc(c.note)}</textarea></label>
-   <div class="row">${ps.map(p=>`<label class="chk" style="font-size:13.5px"><input type="checkbox" id="rk_${r[0]}_${p.k}" data-rok="${r[0]}" data-p="${p.k}"${ok[p.k]?' checked':''}${p.k===mk?'':' disabled'}> ${esc(p.name)}</label>`).join('')}</div></div>`;});
-  return h+`</div>${mk?'':'<div class="note warn"><b>لا تستطيع الموافقة بعد</b>اربط اسمك في «الشركاء ورأس المال» بزر «هذا أنا» حتى تظهر خانتك.</div>'}`;}
+  const S=RULES.map(r=>rStatus(r[0]));const nAll=S.filter(x=>x.all).length,nEd=S.filter(x=>x.edN).length;const mine=mk?RULES.filter(r=>!rState(r[0]).v[mk]).length:0;
+  let h=`<section><h2>اتفاق الشركاء</h2><p class="sub">قبل توقيع عقد الشراكة نتفق هنا على ${RULES.length} قاعدة لإدارة المحل والمال بيننا. كل قاعدة جاءت من مشكلة تتكرر في الشراكات.</p></section>
+  <section class="panel rhow"><h3>كيف يعمل؟</h3><ol>
+   <li><b>اقرأ البند:</b> العنوان هو القاعدة، وتحته شرحها، و«تمنع هذه المشكلة» توضح لماذا نحتاجها.</li>
+   <li><b>اختر رأيك في كل بند:</b> «✅ موافق» أو «✏️ أطلب تعديل» وتكتب التعديل الذي تريده. لا يُعتمد بند إلا بموافقة كل الشركاء.</li>
+   <li><b>طلبات التعديل:</b> تظهر للجميع تحت البند. نتناقش في الدردشة، ثم تُكتب الصيغة النهائية في «الصيغة المتفق عليها» (من زر ✏️ تعديل في الأعلى).</li>
+   <li><b>إذا تغيّرت الصيغة</b> تُلغى الموافقات السابقة على هذا البند، ويوافق الجميع من جديد على النص الجديد.</li>
+   <li><b>بعد اكتمال البنود</b> تُنقل إلى عقد الشراكة، ويراجع الصياغة القانونية محامٍ قبل التوقيع.</li></ol></section>
+  <section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><b>التقدم</b><span class="num">${nAll} / ${RULES.length} متفق عليه</span></div><div class="bar" aria-label="نسبة الاتفاق"><i style="width:${Math.round(nAll/RULES.length*100)}%"></i></div>
+   <div class="rstat">${tag(nAll+' متفق عليه','good')}${nEd?tag(nEd+' فيه طلب تعديل','bad'):''}${mk?tag(mine?mine+' ينتظر رأيك':'أبديت رأيك في الكل',mine?'warn':'good'):''}</div>
+   <div class="rfil" role="group" aria-label="تصفية البنود">${[['all','الكل'],['mine','ينتظر رأيي'],['edit','فيه تعديل'],['done','متفق عليه']].filter(f=>f[0]!=='mine'||mk).map(f=>`<button class="${RF===f[0]?'':'soft'}" data-rfil="${f[0]}">${f[1]}</button>`).join('')}</div></section>`+contractCard()+`<div class="list">`;
+  let shown=0;
+  RULES.forEach((r,i)=>{const {c,v}=rState(r[0]);const s=S[i];const me=mk?v[mk]:null;
+   if(RF==='mine'&&me)return;if(RF==='edit'&&!s.edN)return;if(RF==='done'&&!s.all)return;shown++;
+   const badge=s.all?tag('✓ اتفق الجميع','good'):s.edN?tag('فيه طلب تعديل','bad'):tag('ينتظر '+s.wait+' من '+ps.length,'warn');
+   const plist=ps.map(p=>{const x=v[p.k];return `<li class="${x?x.s:'wait'}"><span class="pn">${esc(p.name)}${p.k===mk?' (أنت)':''}</span><span class="ps">${!x?'⏳ لم يحدد بعد':x.s==='ok'?'✅ موافق':'✏️ يطلب تعديل'}</span>${x&&x.s==='edit'?`<q>${esc(x.text)}</q>`:''}</li>`;}).join('');
+   let act='';
+   if(mk){act=`<div class="rvote" role="group" aria-label="رأيك في البند">
+     <button class="${me&&me.s==='ok'?'on ok':'soft'}" data-rvote="${r[0]}" data-s="ok" aria-pressed="${!!(me&&me.s==='ok')}">✅ موافق</button>
+     <button class="${me&&me.s==='edit'?'on ed':'soft'}" data-rvote="${r[0]}" data-s="edit" aria-pressed="${!!(me&&me.s==='edit')}">✏️ أطلب تعديل</button></div>`;
+    if(redit[r[0]])act+=`<div class="redit"><label class="f">اكتب التعديل الذي تقترحه (مطلوب)<textarea id="re_${r[0]}" rows="3" placeholder="مثال: أقترح أن يكون الحد 5,000 ريال بدل 10,000">${esc(me&&me.s==='edit'?me.text:'')}</textarea></label><div class="row"><button data-rsend="${r[0]}">إرسال طلب التعديل</button><button class="ghost" data-rcancel="${r[0]}">إلغاء</button></div></div>`;
+    else if(!me)act+=`<small class="rhint">اختر «موافق» أو «أطلب تعديل».</small>`;}
+   h+=`<article class="item rcard ${s.all?'r-all':s.edN?'r-ed':''}" id="rule_${r[0]}"><div class="rtop"><span class="rno num">${i+1}</span>${badge}</div>
+    <h3 class="rt">${esc(r[1])}</h3><p class="rx">${esc(r[2])}</p>${r[3]?`<p class="rwhy"><b>تمنع هذه المشكلة:</b> ${esc(r[3])}</p>`:''}
+    <label class="ragreed"><b>الصيغة المتفق عليها</b><textarea id="rn_${r[0]}" data-rnote="${r[0]}" rows="2" placeholder="تُكتب هنا بعد الاتفاق، من زر «تعديل» في الأعلى">${esc(c.note)}</textarea></label>
+    <ul class="rpl">${plist}</ul>${act}</article>`;});
+  if(!shown)h+=`<p class="sub">لا توجد بنود في هذا التصنيف.</p>`;
+  return h+`</div>${mk?'':'<div class="note warn"><b>لا تستطيع إبداء رأيك بعد</b>اربط اسمك في «الشركاء ورأس المال» بزر «هذا أنا» حتى تظهر أزرارك.</div>'}`;}
+const redit={};
+async function rSet(id,k,choice,text){const c=st.chk['r_'+id]||{};const ok=Object.assign({},c.ok||{}),edit=Object.assign({},c.edit||{});delete ok[k];delete edit[k];
+  if(choice==='ok')ok[k]=Date.now();else if(choice==='edit')edit[k]={text,ts:Date.now()};
+  const t=(RULES.find(r=>r[0]===id)||[])[1];
+  return w(()=>db.doc('chk/r_'+id).set(Object.assign({note:''},c,{ok,edit})),choice==='ok'?'وافق على: '+t:choice==='edit'?'طلب تعديل على «'+t+'»: '+text:'سحب رأيه في: '+t);}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-rvote],[data-rsend],[data-rcancel],[data-rfil]');if(!b)return;const d=b.dataset,mk=myKey();
+  if(d.rfil){RF=d.rfil;render();return;}
+  if(!mk)return;
+  if(d.rvote){const id=d.rvote,me=rState(id).v[mk];
+    if(d.s==='ok'){redit[id]=false;await rSet(id,mk,me&&me.s==='ok'?null:'ok');render();}
+    else{redit[id]=!redit[id];render();const t=document.getElementById('re_'+id);if(t)t.focus();}}
+  else if(d.rsend){const id=d.rsend,t=document.getElementById('re_'+id),x=(t&&t.value||'').trim();if(!x){flash('اكتب التعديل الذي تقترحه أولًا.','warn');t&&t.focus();return;}redit[id]=false;await rSet(id,mk,'edit',x);render();}
+  else if(d.rcancel){redit[d.rcancel]=false;render();}});
 
 function dec(){let h=`<section><h2>القرارات</h2><p class="sub">أي قرار يحتاج الشركاء: شراء معدة، اختيار مورد، توظيف، عقد. من ${money(thr())} فما فوق لا يُنفَّذ قبل موافقة الثلاثة هنا. كل موافقة مسجلة باسم صاحبها ووقتها.</p></section>
   <section class="panel"><h3>اطرح قرارًا</h3><div class="fgrid"><label class="f">القرار<input id="f_dt" placeholder="شراء ماكينة إسبريسو من المورد كذا"></label><label class="f">المبلغ (إن وُجد)<input id="f_da" type="text" inputmode="decimal"></label><label class="f">التفاصيل والبدائل<input id="f_dn"></label><button id="addDec">اطرح للموافقة</button></div></section>`;
@@ -739,7 +790,7 @@ async function gSaveAll(){const els=[...buf.values()].filter(x=>document.body.co
     else if(d.ing!=null)add('ings/'+d.id,d.ing,d.ing==='price'?nOrE(x.value):x.value);
     else if(d.mu!=null)add('menu/'+d.id,d.mu,(d.mu==='name'||d.mu==='cat')?x.value.trim():nOrE(x.value));
     else if(d.eu!=null)add('staff/'+d.id,d.eu,['sal','base','housing'].includes(d.eu)?nOrE(x.value):d.eu==='qiwa'?!!x.value:x.value);
-    else if(d.rnote!=null){const c=st.chk['r_'+d.rnote]||{};W.push(()=>db.doc('chk/r_'+d.rnote).set(Object.assign({ok:{}},c,{note:x.value})));}});
+    else if(d.rnote!=null){const c=st.chk['r_'+d.rnote]||{};if((c.note||'')!==x.value)W.push(()=>db.doc('chk/r_'+d.rnote).set(Object.assign({},c,{note:x.value,ok:{},edit:{}})));}});
   const prods=new Set(els.filter(x=>x.dataset.mr!=null).map(x=>x.dataset.mr));
   prods.forEach(pid=>{const p=st.menu.find(y=>y.id===pid);if(!p)return;const rows=JSON.parse(JSON.stringify(p.rows||[]));document.querySelectorAll(`[data-mr="${pid}"]`).forEach(x=>{const i=+x.dataset.i,c=+x.dataset.c;if(rows[i])rows[i][c]=c===1?(+x.value||0):x.value;});add('menu/'+pid,'rows',rows);});
   Object.entries(per).forEach(([path,patch])=>W.push(()=>db.doc(path).update(patch)));
@@ -968,7 +1019,7 @@ document.addEventListener('change',async e=>{const t=e.target;const d=t.dataset;
   else if(d.eu){const v=['sal','base','housing'].includes(d.eu)?num(t.value):d.eu==='qiwa'?!!t.value:t.value;await w(()=>db.doc('staff/'+d.id).update({[d.eu]:v}),d.eu==='sal'?'غيّر راتبًا إلى '+t.value:d.eu==='qiwa'&&v?'وُثّق عقد في قوى':'');}
   else if(d.tu){await w(()=>db.doc('tasks/'+d.id).update({[d.tu]:t.value}));}
   else if(d.tdone){const tk=st.tasks.find(x=>x.id===d.tdone);await w(()=>db.doc('tasks/'+d.tdone).update({done:t.checked,doneBy:t.checked?(myId||''):''}),(t.checked?'أنجز: ':'أعاد فتح: ')+(tk?tk.title:''));}
-  else if(d.rnote){const c=st.chk['r_'+d.rnote]||{};await w(()=>db.doc('chk/r_'+d.rnote).set(Object.assign({ok:{}},c,{note:t.value})),'كتب ما اتُّفق عليه في: '+(RULES.find(r=>r[0]===d.rnote)||[])[1]);}
+  else if(d.rnote){const c=st.chk['r_'+d.rnote]||{};if((c.note||'')===t.value)return;await w(()=>db.doc('chk/r_'+d.rnote).set(Object.assign({},c,{note:t.value,ok:{},edit:{}})),'كتب ما اتُّفق عليه في: '+(RULES.find(r=>r[0]===d.rnote)||[])[1]);}
   else if(d.rok){const c=st.chk['r_'+d.rok]||{};const ok=Object.assign({},c.ok||{},{[d.p]:t.checked?Date.now():0});Object.keys(ok).forEach(k=>{if(!ok[k])delete ok[k];});await w(()=>db.doc('chk/r_'+d.rok).set(Object.assign({note:''},c,{ok})),(t.checked?'وافق على: ':'سحب موافقته على: ')+(RULES.find(r=>r[0]===d.rok)||[])[1]);}
   else if(d.calc){const c=Object.assign({},st.calc||{},{[d.calc]:num(t.value)});await w(()=>db.doc('calc/main').set(c));}
 });
