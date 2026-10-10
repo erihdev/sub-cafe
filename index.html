@@ -129,6 +129,8 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
 @media (max-width:560px){.brand h1{font-size:26px}.tile b{font-size:18px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+.upl{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13.5px;cursor:pointer;background:var(--surface)}
+.upl input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 /* الدردشة */
 .chat-list{display:flex;flex-direction:column;gap:10px;padding-bottom:12px}
 .msg{max-width:84%;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;overflow-wrap:anywhere}
@@ -441,7 +443,7 @@ function spend(){const m=money2();const T=thr();
   if(!st.spend.length)return h+`<div class="empty">لا مصاريف بعد. أول مصروف (رسوم السجل، الإيجار، العربون) سجّلوه هنا.</div>`;
   h+=`<div class="list">${[...st.spend].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.ts||0)-(a.ts||0)).map(s=>{const a=apprState(s);
    return `<div class="item"><div class="hd"><div class="t">${esc(s.item)}<br><small>${esc(s.cat)} · <span class="num">${esc(s.date)}</span> · ${s.paidBy==='co'?'حساب المنشأة':'جيب '+esc(pName(s.paidBy))+(s.treat==='refund'?(s.refunded?' · استُرد':' · يُسترد'):' · من رأس ماله')}${s.note?' · '+esc(s.note):''}</small></div><b>${nb(s.amount)}</b></div>
-   <div class="row">${s.inv?tag('فاتورة محفوظة','good'):tag('بلا فاتورة','bad')} ${a.need?apprTags(s,'spend'):''} ${s.paidBy!=='co'&&s.treat==='refund'&&!s.refunded?`<button class="ghost" data-refund="${s.id}">تم الاسترداد</button>`:''} ${!s.inv?`<button class="ghost" data-inv="${s.id}">وصلت الفاتورة</button>`:''} ${s.paidBy!=='co'&&!s.refunded?`<button class="ghost" data-treat="${s.id}">${s.treat==='refund'?'احسبه من رأس ماله':'اجعله يُسترد له'}</button>`:''}<span style="flex:1"></span><small>سجّله ${esc(who(s.by))}</small>${delBtn('spend',s.id)}</div></div>`;}).join('')}</div>`;
+   <div class="row">${s.inv?tag('فاتورة محفوظة','good'):tag('بلا فاتورة','bad')} ${a.need?apprTags(s,'spend'):''} ${s.paidBy!=='co'&&s.treat==='refund'&&!s.refunded?`<button class="ghost" data-refund="${s.id}">تم الاسترداد</button>`:''} ${!s.inv?`<button class="ghost" data-inv="${s.id}">وصلت الفاتورة</button>`:''} ${(s.att||[]).map((a,i)=>`<button class="ghost" data-dl="${esc(a.id)}" data-name="${esc(a.name||'فاتورة')}">📎 الفاتورة${(s.att||[]).length>1?' '+(i+1):''}</button>`).join(' ')} <label class="upl">📷 ${(s.att||[]).length?'فاتورة أخرى':'صورة الفاتورة'}<input type="file" accept="image/*,application/pdf" data-spfile="${s.id}"></label> ${s.paidBy!=='co'&&!s.refunded?`<button class="ghost" data-treat="${s.id}">${s.treat==='refund'?'احسبه من رأس ماله':'اجعله يُسترد له'}</button>`:''}<span style="flex:1"></span><small>سجّله ${esc(who(s.by))}</small>${delBtn('spend',s.id)}</div></div>`;}).join('')}</div>`;
   return h;}
 
 function apprTags(o,col){const a=apprState(o),mk=myKey();const ap=o.appr||{};
@@ -464,7 +466,7 @@ function tasks(){const L=st.tasks;const done=L.filter(t=>t.done).length;
   return h;}
 
 let CONTRACT='';
-const contractCard=()=>`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><h3 style="margin:0">عقد الشراكة (مسودة)</h3><p class="sub" style="margin:2px 0 0">قرار: السجل مؤسسة باسم صاحبته المسجّلة في وزارة التجارة، ونوثّق عقد شراكة: 33٪ لكل شريك و${holdPct()}٪ لصاحبة السجل، وصُب شريك رابع بـ${subSh()}٪ من الأرباح. رأس المال صفر حاليًّا ويُحدَّد بملحق. يراجعه محامٍ قبل التوقيع.</p></div>${CONTRACT?`<a class="btn-link" href="${CONTRACT}" target="_blank" rel="noopener">افتح العقد ↗</a>`:'<span class="sub">رابط العقد يُضاف في «الشركاء ورأس المال»</span>'}</div></section>`;
+const contractCard=()=>`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><h3 style="margin:0">عقد الشراكة (مسودة)</h3><p class="sub" style="margin:2px 0 0">قرار: السجل مؤسسة باسم صاحبته المسجّلة في وزارة التجارة، ونوثّق عقد شراكة: 33٪ لكل شريك و${holdPct()}٪ لصاحبة السجل، وصُب شريك رابع بـ${subSh()}٪ من الأرباح. رأس المال صفر حاليًّا ويُحدَّد بملحق. يراجعه محامٍ قبل التوقيع.</p></div><div class="row">${(cfg()||{}).contractFile?`<button class="soft" data-dl="${esc(cfg().contractFile.id)}" data-name="${esc(cfg().contractFile.name||'عقد الشراكة.pdf')}">📄 افتح العقد</button>`:''}${CONTRACT?`<a class="btn-link" href="${CONTRACT}" target="_blank" rel="noopener">رابط العقد ↗</a>`:''}<label class="upl">⬆️ ${(cfg()||{}).contractFile?'ارفع نسخة أحدث':'ارفع العقد (PDF)'}<input type="file" accept="application/pdf,image/*" data-ctfile="1"></label></div></div>${(cfg()||{}).contractFile?`<small>آخر نسخة رفعها ${esc(pName(cfg().contractFile.by))} · <span class="num">${esc(cfg().contractFile.date||'')}</span></small>`:''}</section>`;
 function rules(){const ps=P(),mk=myKey();
   let h=`<section><h2>اتفاق الشركاء</h2><p class="sub">${RULES.length} بندًا كل واحد منها جاء من مشكلة حقيقية. يوافق كل شريك بنفسه، ويُكتب ما اتفقتم عليه في خانة «ما اتفقنا عليه»، ثم يُنقل كل ذلك إلى عقد الشراكة الموثّق. هذا تنظيم عملي، والصياغة القانونية للعقد يراجعها محامٍ.</p></section>`+contractCard()+`<div class="list">`;
   RULES.forEach(r=>{const c=st.chk['r_'+r[0]]||{};const ok=c.ok||{};const all=ps.every(p=>ok[p.k]);
@@ -735,6 +737,16 @@ document.addEventListener('click',async e=>{
   const d=e.target.closest('[data-dl]');if(d){try{const u=await window.subFile(d.dataset.dl);const a=document.createElement('a');a.href=u;a.download=d.dataset.name||'file';a.click();}catch(x){flash('تعذّر تنزيل الملف','bad');}return;}
   const x=e.target.closest('[data-chdel]');if(x){if(!confirmDel||confirmDel!==x.dataset.chdel){confirmDel=x.dataset.chdel;flash('اضغط ✕ مرة ثانية لحذف الرسالة.','warn');return;}confirmDel=null;try{await db.doc('chat/'+x.dataset.chdel).delete();}catch(y){flash('تعذّر الحذف','bad');}}});
 document.addEventListener('keydown',e=>{if(e.target&&e.target.id==='f_chat'&&e.key==='Enter'&&!e.shiftKey&&!/Mobi|Android|iPhone/.test(navigator.userAgent)){e.preventDefault();$('#chatSend').click();}});
+
+
+/* ===== فواتير المصاريف والعقد ===== */
+async function upOne(f){const isImg=/^image\//.test(f.type);if(f.size>25*1024*1024)throw new Error('الملف أكبر من 25 ميجا');const blob=isImg?await shrink(f):f;
+  const name=isImg?(f.name||'photo').replace(/\.\w+$/,'')+'.jpg':(f.name||'file');const r=await window.subUpload(blob,name,isImg?'image/jpeg':(f.type||'application/octet-stream'));MEDIA[r.id]=URL.createObjectURL(blob);return {k:isImg?'img':'file',id:r.id,name};}
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset)return;
+  if(t.dataset.spfile!=null){e.stopImmediatePropagation();const id=t.dataset.spfile,f=t.files[0];t.value='';if(!f)return;flash('جارٍ رفع الفاتورة…');
+    try{const a=await upOne(f);const s=st.spend.find(x=>x.id===id)||{};await db.doc('spend/'+id).update({att:(s.att||[]).concat([a]),inv:true});flash('حُفظت الفاتورة ✓');}catch(x){flash('تعذّر رفع الفاتورة: '+((x&&x.message)||''),'bad');}return;}
+  if(t.dataset.ctfile!=null){e.stopImmediatePropagation();const f=t.files[0];t.value='';if(!f)return;flash('جارٍ رفع العقد…');
+    try{const a=await upOne(f);await saveCfg({contractFile:{id:a.id,name:a.name,by:myKey(),date:today()}});flash('حُفظ العقد ✓');}catch(x){flash('تعذّر رفع العقد: '+((x&&x.message)||''),'bad');}}},true);
 
 /* ===== العرض ===== */
 const V={chat:chatv,tl,me,menu,staff,wi,home,partners,budget,site,spend,tasks,rules,dec,calc,log:logv};
