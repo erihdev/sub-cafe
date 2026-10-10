@@ -150,6 +150,18 @@ input[data-ing="name"]{min-width:150px}select[data-mr]{min-width:140px}select[da
 .dwrap.dis{opacity:.75;cursor:default}.dwrap .dlab{pointer-events:none}
 .dwrap::after{content:"📅";position:absolute;left:9px;font-size:14px;pointer-events:none}
 bdi.dt{white-space:nowrap}
+.ac-w{position:relative;display:inline-block}
+.ac{display:flex;flex-direction:column;width:112px;padding:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);cursor:pointer;overflow:hidden;text-align:right;box-shadow:0 1px 2px rgba(42,26,16,.06);transition:transform .12s,box-shadow .12s}
+.ac:hover,.ac:focus-visible{transform:translateY(-1px);box-shadow:0 4px 12px rgba(42,26,16,.12)}
+.ac-prev{display:flex;align-items:center;justify-content:center;width:100%;height:84px;background:var(--accent-soft);overflow:hidden}
+.ac-prev img{width:100%;height:100%;object-fit:cover}
+.ac-ic{display:flex;align-items:center;justify-content:center;width:46px;height:56px;border-radius:6px;font-weight:700;font-size:13px;color:#fff;background:#8A7A6E;letter-spacing:.5px}
+.ac-ic.ic-img{background:none;font-size:30px;width:auto}
+.ac-ic.ic-pdf{background:#C8382E}.ac-ic.ic-xls{background:#1E7A47}.ac-ic.ic-doc{background:#2B5DB8}.ac-ic.ic-img2{background:#7A5AB8;font-size:11px}
+.ac-ic.ic-vid{background:rgba(42,26,16,.75);width:44px;height:44px;border-radius:50%;font-size:18px}
+.ac-cap{display:flex;flex-direction:column;gap:1px;padding:6px 8px}
+.ac-name{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-meta{font-size:11px;color:var(--muted)}
 /* الدردشة */
 .chat-list{display:flex;flex-direction:column;gap:10px;padding-bottom:12px}
 .msg{max-width:84%;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;overflow-wrap:anywhere}
@@ -763,10 +775,14 @@ document.addEventListener('keydown',e=>{if(e.target&&e.target.id==='f_chat'&&e.k
 
 /* ===== فواتير المصاريف والعقد ===== */
 let SPF=[],SED=null;
+function fsize(n){n=+n||0;if(!n)return '';return n<1024*1024?Math.max(1,Math.round(n/1024))+' KB':(n/1048576).toFixed(1)+' MB';}
+function ftype(a){const n=(a.name||'').toLowerCase(),m=(a.mime||'').toLowerCase();if(a.k==='img')return ['صورة','img'];if(a.k==='vid')return ['فيديو','vid'];
+  if(/pdf/.test(m)||/\.pdf$/.test(n))return ['PDF','pdf'];if(/\.(xlsx?|csv)$/.test(n)||/sheet|excel/.test(m))return ['Excel','xls'];if(/\.(docx?)$/.test(n)||/word/.test(m))return ['Word','doc'];if(/\.(heic|heif)$/.test(n))return ['صورة HEIC','img2'];return ['ملف','gen'];}
 function attStrip(att,editId){att=att||[];if(!att.length)return '';
-  return `<div class="atts">${att.map((a,i)=>{const lab=a.k==='img'?'':a.k==='vid'?'🎥 فيديو':'📄 '+esc(a.name||'ملف');
-    const th=a.k==='img'?`<span class="th" data-th="${esc(a.id)}">${MEDIA[a.id]?`<img src="${MEDIA[a.id]}" alt="مرفق">`:'🖼️'}</span>`:`<span class="th tx">${lab}</span>`;
-    return `<span class="att-w"><button class="att-b" data-view="${esc(a.id)}" data-k="${esc(a.k)}" data-name="${esc(a.name||'')}" aria-label="عرض المرفق">${th}</button>${editId?`<button class="att-x" data-satdel="${editId}|${i}" aria-label="حذف المرفق">✕</button>`:''}</span>`;}).join('')}</div>`;}
+  return `<div class="atts">${att.map((a,i)=>{const [tl,tc]=ftype(a);const ic={vid:'▶',pdf:'PDF',xls:'XLS',doc:'DOC',img2:'HEIC',gen:'📎'}[tc]||'📎';
+    const prev=a.k==='img'?`<span class="ac-prev" data-th="${esc(a.id)}">${MEDIA[a.id]?`<img src="${MEDIA[a.id]}" alt="">`:'<span class="ac-ic ic-img">🖼️</span>'}</span>`:`<span class="ac-prev"><span class="ac-ic ic-${tc}">${ic}</span></span>`;
+    return `<span class="ac-w"><button class="ac" data-view="${esc(a.id)}" data-k="${esc(a.k)}" data-name="${esc(a.name||'')}" aria-label="عرض ${esc(a.name||tl)}">${prev}<span class="ac-cap"><span class="ac-name">${esc(a.name||tl)}</span><span class="ac-meta">${tl}${a.size?' · '+fsize(a.size):''}</span></span></button>${editId?`<button class="att-x" data-satdel="${editId}|${i}" aria-label="حذف المرفق">✕</button>`:''}</span>`;}).join('')}</div>`;}
+
 function spendEdit(s){return `<div class="panel" style="margin:8px 0"><div class="fgrid">
   <label class="f">البيان<input id="f_es_item" value="${esc(s.item)}"></label>
   <label class="f">المبلغ شامل الضريبة<input id="f_es_amount" type="text" inputmode="decimal" value="${esc(s.amount)}"></label>
@@ -804,7 +820,7 @@ document.addEventListener('click',async e=>{
 });
 
 async function upOne(f){const isImg=/^image\//.test(f.type)&&!/heic|heif/i.test(f.type),isVid=/^video\//.test(f.type);if(f.size>25*1024*1024)throw new Error('«'+f.name+'» أكبر من 25 ميجا');const blob=isImg?await shrink(f):f;
-  const name=isImg?(f.name||'photo').replace(/\.\w+$/,'')+'.jpg':(f.name||'file');const r=await window.subUpload(blob,name,isImg?'image/jpeg':(f.type||'application/octet-stream'));MEDIA[r.id]=URL.createObjectURL(blob);return {k:isImg?'img':isVid?'vid':'file',id:r.id,name,mime:isImg?'image/jpeg':(f.type||'')};}
+  const name=isImg?(f.name||'photo').replace(/\.\w+$/,'')+'.jpg':(f.name||'file');const r=await window.subUpload(blob,name,isImg?'image/jpeg':(f.type||'application/octet-stream'));MEDIA[r.id]=URL.createObjectURL(blob);return {k:isImg?'img':isVid?'vid':'file',id:r.id,name,mime:isImg?'image/jpeg':(f.type||''),size:blob.size||f.size||0};}
 async function upMany(files){const out=[];let i=0;for(const f of files){i++;flash('جارٍ رفع المرفقات '+i+' من '+files.length+'…');out.push(await upOne(f));}return out;}
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset)return;
   if(t.id==='spNewFiles'){e.stopImmediatePropagation();SPF=SPF.concat([...t.files]);t.value='';const l=document.getElementById('spNewList');if(l)l.textContent=SPF.map(f=>f.name).join('، ');return;}
