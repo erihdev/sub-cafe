@@ -145,6 +145,11 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
 #viewer img,#viewer video{max-width:100%;max-height:100%;border-radius:8px}
 #viewer iframe{width:100%;flex:1;min-height:60vh;border:0;background:#fff;border-radius:8px}
 input[data-ing="name"]{min-width:150px}select[data-mr]{min-width:140px}select[data-ing="unit"]{min-width:120px}
+.dwrap{position:relative;display:flex;align-items:center;min-height:38px;margin-top:3px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:7px 9px;width:100%;box-sizing:border-box;cursor:pointer}
+.dwrap input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;border:0;padding:0}
+.dwrap.dis{opacity:.75;cursor:default}.dwrap .dlab{pointer-events:none}
+.dwrap::after{content:"📅";position:absolute;left:9px;font-size:14px;pointer-events:none}
+bdi.dt{white-space:nowrap}
 /* الدردشة */
 .chat-list{display:flex;flex-direction:column;gap:10px;padding-bottom:12px}
 .msg{max-width:84%;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;overflow-wrap:anywhere}
@@ -399,7 +404,7 @@ function partners(){const c=cfg(),m=money2(),mk=myKey();const pctSum=sum(P(),p=>
    <label class="f">الشريك<select id="f_cp">${P().map(p=>`<option value="${p.k}">${esc(p.name)}</option>`).join('')}</select></label>
    <label class="f">المبلغ<input id="f_ca" type="text" inputmode="decimal"></label><label class="f">التاريخ<input id="f_cd" type="date" value="${today()}"></label>
    <label class="f">ملاحظة (رقم الحوالة مثلًا)<input id="f_cn"></label><button id="addContrib">سجّل الدفعة</button></div></div>
-   ${st.contrib.length?`<div class="tw" style="margin-top:10px"><table><thead><tr><th>التاريخ</th><th>الشريك</th><th>المبلغ</th><th>ملاحظة</th><th>سجّلها</th><th></th></tr></thead><tbody>${[...st.contrib].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(c=>`<tr><td class="num">${esc(c.date)}</td><td>${esc(pName(c.partner))}</td><td>${nb(c.amount)}</td><td>${esc(c.note)}</td><td><small>${esc(who(c.by))}</small></td><td>${delBtn('contrib',c.id)}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty" style="margin-top:10px">لا دفعات بعد. سجّلوا كل تحويل لرأس المال هنا مع رقم الحوالة.</div>`}</section>`;
+   ${st.contrib.length?`<div class="tw" style="margin-top:10px"><table><thead><tr><th>التاريخ</th><th>الشريك</th><th>المبلغ</th><th>ملاحظة</th><th>سجّلها</th><th></th></tr></thead><tbody>${[...st.contrib].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(c=>`<tr><td>${fmtD(c.date)}</td><td>${esc(pName(c.partner))}</td><td>${nb(c.amount)}</td><td>${esc(c.note)}</td><td><small>${esc(who(c.by))}</small></td><td>${delBtn('contrib',c.id)}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty" style="margin-top:10px">لا دفعات بعد. سجّلوا كل تحويل لرأس المال هنا مع رقم الحوالة.</div>`}</section>`;
   return h;}
 
 function delBtn(col,id){return confirmDel===col+'/'+id?`<button class="danger" data-del="${col}" data-id="${id}">تأكيد الحذف</button>`:`<button class="ghost" data-ask="${col}/${id}" aria-label="حذف">حذف</button>`;}
@@ -412,7 +417,7 @@ function site(){const items=st.items;const by=k=>items.filter(i=>i.st===k);const
   const left=sum(items.filter(i=>OPEN_ST.includes(i.st)),i=>i.est),act=sum(items,i=>i.actual);
   let h=`<section><h2>بنود التأسيس</h2><p class="sub">كل بنود ميزانية التأسيس من ملفكم، مع الحالة: معلّق ← عرض مستلم ← معتمد ← مُشترى. «متوفر» يعني موجود في المحل الحالي. ${ed?'السعر الفعلي يسجّله مسؤول التجهيز: <b>'+esc(pName(ed))+'</b>.':'حدّدوا مسؤول التجهيز في «الشركاء ورأس المال».'}</p>`+
   tiles([[`<span class="num">${by('have').length}</span>`,'متوفر في المحل','good'],[`<span class="num">${by('pend').length}</span>`,'معلّق','bad'],[`<span class="num">${by('quote').length+by('ok').length}</span>`,'عرض مستلم أو معتمد','warn'],[`<span class="num">${by('bought').length}</span>`,'مُشترى','good'],[nb(left),'تقدير ما لم يُشترَ بعد'],[nb(act),'السعر الفعلي حتى الآن']])+`</section>`;
-  h+=`<section class="panel"><h3>أضف بندًا</h3><div class="fgrid"><label class="f">البند<input id="f_in"></label><label class="f">القسم<select id="f_ic">${ICATS.map(c=>`<option>${c}</option>`).join('')}</select></label>
+  h+=`<section class="panel"><h3>أضف بندًا</h3><div class="fgrid"><label class="f">البند<input id="f_in"></label><label class="f">القسم<select id="f_ic">${ICATS.map(c=>`<option value="${esc(c)}">${latD(c)}</option>`).join('')}</select></label>
   <label class="f">الحالة<select id="f_is">${ISTAT.map(s=>`<option value="${s[0]}"${s[0]==='pend'?' selected':''}>${s[1]}</option>`).join('')}</select></label><label class="f">التقدير<input id="f_ie" type="text" inputmode="decimal"></label><label class="f">ملاحظة<input id="f_inote"></label><button id="addItem">أضف</button></div></section>`;
   if(!items.length)return h+`<div class="empty">لا بنود بعد.</div>`;
   const q='';
@@ -449,14 +454,14 @@ function budget(){const r=budCalc(),b=r.b;const ps=P();const pctOk=Math.abs(sum(
 function spend(){const m=money2();const T=thr();
   let h=`<section><h2>المصاريف</h2><p class="sub">كل ريال يُصرف على المحل، ومن أي حساب. ما دفعه شريك من جيبه يُحدَّد: يُحسب من رأس ماله أو يُسترد له. فوق حد القرار المشترك (${money(T)}) لا يُعتمد إلا بموافقة الجميع.</p>`+
   tiles([[nb(m.spent),'مجموع المصاريف'],[nb(m.outCo),'من حساب المنشأة'],[nb(m.spent-m.outCo),'من جيوب الشركاء',m.spent-m.outCo>0?'warn':''],[nb(sum(st.spend.filter(s=>!s.inv),s=>s.amount)),'بلا فاتورة',st.spend.some(s=>!s.inv)?'bad':'']])+`</section>`;
-  h+=`<section class="panel"><h3>سجّل مصروفًا</h3><div class="fgrid"><label class="f">البيان<input id="f_si"></label><label class="f">التصنيف<select id="f_sc">${ICATS.concat(['الإيجار','أخرى']).map(c=>`<option>${c}</option>`).join('')}</select></label>
+  h+=`<section class="panel"><h3>سجّل مصروفًا</h3><div class="fgrid"><label class="f">البيان<input id="f_si"></label><label class="f">التصنيف<select id="f_sc">${ICATS.concat(['الإيجار','أخرى']).map(c=>`<option value="${esc(c)}">${latD(c)}</option>`).join('')}</select></label>
   <label class="f">المبلغ شامل الضريبة<input id="f_sa" type="text" inputmode="decimal"></label><label class="f">التاريخ<input id="f_sd" type="date" value="${today()}"></label>
   <label class="f">دُفع من<select id="f_sp"><option value="co">حساب المنشأة</option>${P().map(p=>`<option value="${p.k}">جيب ${esc(p.name)}</option>`).join('')}</select></label>
   <label class="f">إن دفعه شريك<select id="f_st"><option value="capital">يُحسب من رأس ماله</option><option value="refund">يُسترد له</option></select></label>
   <label class="f">فاتورة ضريبية؟<select id="f_sv"><option value="">لا</option><option value="1">نعم</option></select></label><label class="f">المورد أو ملاحظة<input id="f_sn"></label><div class="f"><span>المرفقات (فاتورة، صور، فيديو، ملف)</span><label class="upl" style="justify-content:center">📎 اختر أو صوّر<input type="file" multiple accept="image/*,video/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.heic" id="spNewFiles"></label><small id="spNewList">${SPF.length?SPF.map(f=>esc(f.name)).join('، '):'لا مرفقات'}</small></div><button id="addSpend">سجّل</button></div></section>`;
   if(!st.spend.length)return h+`<div class="empty">لا مصاريف بعد. أول مصروف (رسوم السجل، الإيجار، العربون) سجّلوه هنا.</div>`;
   h+=`<div class="list">${[...st.spend].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.ts||0)-(a.ts||0)).map(s=>{const a=apprState(s);
-   return `<div class="item"><div class="hd"><div class="t">${esc(s.item)}<br><small>${esc(s.cat)} · <span class="num">${esc(s.date)}</span> · ${s.paidBy==='co'?'حساب المنشأة':'جيب '+esc(pName(s.paidBy))+(s.treat==='refund'?(s.refunded?' · استُرد':' · يُسترد'):' · من رأس ماله')}${s.note?' · '+esc(s.note):''}</small></div><b>${nb(s.amount)}</b></div>
+   return `<div class="item"><div class="hd"><div class="t">${esc(s.item)}<br><small>${latD(esc(s.cat))} · ${fmtD(s.date)} · ${s.paidBy==='co'?'حساب المنشأة':'جيب '+esc(pName(s.paidBy))+(s.treat==='refund'?(s.refunded?' · استُرد':' · يُسترد'):' · من رأس ماله')}${s.note?' · '+esc(s.note):''}</small></div><b>${nb(s.amount)}</b></div>
    ${SED===s.id?spendEdit(s):''}${attStrip(s.att,SED===s.id?s.id:'')}<div class="row">${s.inv?tag('فاتورة محفوظة','good'):tag('بلا فاتورة','bad')} ${a.need?apprTags(s,'spend'):''} ${s.paidBy!=='co'&&s.treat==='refund'&&!s.refunded?`<button class="ghost" data-refund="${s.id}">تم الاسترداد</button>`:''} ${!s.inv?`<button class="ghost" data-inv="${s.id}">وصلت الفاتورة</button>`:''} <label class="upl">📎 ${(s.att||[]).length?'أضف مرفقًا':'أرفق فاتورة أو صورة أو فيديو'}<input type="file" multiple accept="image/*,video/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.heic" data-spfile="${s.id}"></label> <button class="ghost" data-sedit="${s.id}">✏️ تعديل</button> ${s.paidBy!=='co'&&!s.refunded?`<button class="ghost" data-treat="${s.id}">${s.treat==='refund'?'احسبه من رأس ماله':'اجعله يُسترد له'}</button>`:''}<span style="flex:1"></span><small>سجّله ${esc(who(s.by))}</small>${delBtn('spend',s.id)}</div></div>`;}).join('')}</div>`;
   return h;}
 
@@ -480,7 +485,7 @@ function tasks(){const L=st.tasks;const done=L.filter(t=>t.done).length;
   return h;}
 
 let CONTRACT='';
-const contractCard=()=>`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><h3 style="margin:0">عقد الشراكة (مسودة)</h3><p class="sub" style="margin:2px 0 0">قرار: السجل مؤسسة باسم صاحبته المسجّلة في وزارة التجارة، ونوثّق عقد شراكة: 33٪ لكل شريك و${holdPct()}٪ لصاحبة السجل، وصُب شريك رابع بـ${subSh()}٪ من الأرباح. رأس المال صفر حاليًّا ويُحدَّد بملحق. يراجعه محامٍ قبل التوقيع.</p></div><div class="row">${(cfg()||{}).contractFile?`<button class="soft" data-view="${esc(cfg().contractFile.id)}" data-k="${esc(cfg().contractFile.k||'file')}" data-name="${esc(cfg().contractFile.name||'عقد الشراكة.pdf')}">📄 افتح العقد</button>`:''}${CONTRACT?`<a class="btn-link" href="${CONTRACT}" target="_blank" rel="noopener">رابط العقد ↗</a>`:''}<label class="upl">⬆️ ${(cfg()||{}).contractFile?'ارفع نسخة أحدث':'ارفع العقد (PDF)'}<input type="file" accept="application/pdf,image/*" data-ctfile="1"></label></div></div>${(cfg()||{}).contractFile?`<small>آخر نسخة رفعها ${esc(pName(cfg().contractFile.by))} · <span class="num">${esc(cfg().contractFile.date||'')}</span></small>`:''}</section>`;
+const contractCard=()=>`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><h3 style="margin:0">عقد الشراكة (مسودة)</h3><p class="sub" style="margin:2px 0 0">قرار: السجل مؤسسة باسم صاحبته المسجّلة في وزارة التجارة، ونوثّق عقد شراكة: 33٪ لكل شريك و${holdPct()}٪ لصاحبة السجل، وصُب شريك رابع بـ${subSh()}٪ من الأرباح. رأس المال صفر حاليًّا ويُحدَّد بملحق. يراجعه محامٍ قبل التوقيع.</p></div><div class="row">${(cfg()||{}).contractFile?`<button class="soft" data-view="${esc(cfg().contractFile.id)}" data-k="${esc(cfg().contractFile.k||'file')}" data-name="${esc(cfg().contractFile.name||'عقد الشراكة.pdf')}">📄 افتح العقد</button>`:''}${CONTRACT?`<a class="btn-link" href="${CONTRACT}" target="_blank" rel="noopener">رابط العقد ↗</a>`:''}<label class="upl">⬆️ ${(cfg()||{}).contractFile?'ارفع نسخة أحدث':'ارفع العقد (PDF)'}<input type="file" accept="application/pdf,image/*" data-ctfile="1"></label></div></div>${(cfg()||{}).contractFile?`<small>آخر نسخة رفعها ${esc(pName(cfg().contractFile.by))} · ${fmtD(cfg().contractFile.date||'')}</small>`:''}</section>`;
 function rules(){const ps=P(),mk=myKey();
   let h=`<section><h2>اتفاق الشركاء</h2><p class="sub">${RULES.length} بندًا كل واحد منها جاء من مشكلة حقيقية. يوافق كل شريك بنفسه، ويُكتب ما اتفقتم عليه في خانة «ما اتفقنا عليه»، ثم يُنقل كل ذلك إلى عقد الشراكة الموثّق. هذا تنظيم عملي، والصياغة القانونية للعقد يراجعها محامٍ.</p></section>`+contractCard()+`<div class="list">`;
   RULES.forEach(r=>{const c=st.chk['r_'+r[0]]||{};const ok=c.ok||{};const all=ps.every(p=>ok[p.k]);
@@ -661,7 +666,7 @@ function tlStrip(small){const ci=curPhase();const all=Math.round(sum(PH,ph=>phSt
   return `<div class="tl-strip${small?' sm':''}" role="img" aria-label="التقدم الكلي ${all}٪، المرحلة الحالية ${PH[ci][1]}">${PH.map((ph,i)=>{const s=phStat(ph);return `<a href="#tl" data-tlgo="${ph[0]}" class="tl-seg ${s.pct>=100?'done':i===ci?'now':''}" title="${esc(ph[1])} ${s.pct}٪"><i style="width:${s.pct}%"></i><span>${i+1}</span></a>`;}).join('')}</div>
    <div class="tl-cap"><span>أنتم في المرحلة <b>${ci+1}</b>: ${esc(PH[ci][1])}</span><span class="num">${all}٪</span></div>`;}
 function tl(){const ci=curPhase();const c=cfg();const today_=today();const ms=tlS();
-  let days='';if(c.open){const d=Math.ceil((new Date(c.open)-new Date(today_))/864e5);days=d>=0?`<b class="num">${d}</b> يومًا على الافتتاح (${esc(c.open)})`:'موعد الافتتاح مضى';}
+  let days='';if(c.open){const d=Math.ceil((new Date(c.open)-new Date(today_))/864e5);days=d>=0?`<b class="num">${d}</b> يومًا على الافتتاح (${fmtD(c.open)})`:'موعد الافتتاح مضى';}
   let h=`<section><h2>الجدول الزمني</h2><p class="sub">ثماني مراحل من السجل إلى الافتتاح. بعض المعالم تُحسب تلقائيًّا من الملف (بنود الميزانية والموظفين والمنيو ورأس المال)، والباقي يعلّمه الشركاء. حدّدوا لكل معلم موعدًا مستهدفًا ليظهر المتأخر.</p>${tlStrip(false)}<p class="sub" style="margin-top:6px">${days||'حدّدوا موعد الافتتاح المستهدف في «الشركاء ورأس المال».'}</p></section><ol class="tl">`;
   PH.forEach((ph,i)=>{const s=phStat(ph);const isNow=i===ci;const open=tlOpen?tlOpen===ph[0]:isNow;const late=ph[3].filter(m=>!msDone(m)&&ms[m[0]]&&ms[m[0]].date&&ms[m[0]].date<today_).length;
    h+=`<li class="tl-ph ${s.pct>=100?'done':isNow?'now':'next'}"><span class="tl-dot" aria-hidden="true">${s.pct>=100?'✓':i+1}</span><div class="item"><button class="tl-hd" data-tlopen="${ph[0]}" aria-expanded="${open}"><span class="t">${esc(ph[1])}${isNow?' <span class="tag warn">أنتم هنا</span>':''}${late?` <span class="tag bad">${late} متأخر</span>`:''}</span><span class="num">${s.pct}٪</span></button>${ph[2]?`<small>${esc(ph[2])}</small>`:''}<div class="bar"><i style="width:${s.pct}%"></i></div>
@@ -715,7 +720,7 @@ const MEDIA={};let chatN=-1;
 function linkify(t){let h=esc(t);return h.replace(/(https?:\/\/[^\s<]+)/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);}
 function ytId(t){const m=String(t||'').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);return m?m[1]:null;}
 function hhmm(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
-function dday(ts){const d=new Date(ts);return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');}
+function dday(ts){const d=new Date(ts);return d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear();}
 function chatv(){const me=myKey();const L=st.chat.slice().sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-300);let last='';
   const rows=L.map(m=>{const day=dday(m.ts||0);const sep=day!==last?`<div class="chat-day">${day}</div>`:'';last=day;const mine=m.by===me;
     const att=(m.att||[]).map(a=>a.k==='img'?`<div class="att" data-att="${esc(a.id)}" data-k="img"><span class="sub">جارٍ تحميل الصورة…</span></div>`
@@ -766,7 +771,7 @@ function spendEdit(s){return `<div class="panel" style="margin:8px 0"><div class
   <label class="f">البيان<input id="f_es_item" value="${esc(s.item)}"></label>
   <label class="f">المبلغ شامل الضريبة<input id="f_es_amount" type="text" inputmode="decimal" value="${esc(s.amount)}"></label>
   <label class="f">التاريخ<input id="f_es_date" type="date" value="${esc(s.date)}"></label>
-  <label class="f">التصنيف<select id="f_es_cat">${ICATS.concat(['الإيجار','أخرى']).map(c=>`<option${c===s.cat?' selected':''}>${c}</option>`).join('')}</select></label>
+  <label class="f">التصنيف<select id="f_es_cat">${ICATS.concat(['الإيجار','أخرى']).map(c=>`<option value="${esc(c)}"${c===s.cat?' selected':''}>${latD(c)}</option>`).join('')}</select></label>
   <label class="f">المورد أو ملاحظة<input id="f_es_note" value="${esc(s.note)}"></label></div>
   <small>تغيير المبلغ يرجّع المصروف لموافقة الشركاء إذا كان فوق الحد. وتقدر تحذف أي مرفق من ✕.</small>
   <div class="row" style="margin-top:8px"><button data-ssave="${s.id}">حفظ التعديل</button><button class="ghost" data-scancel="1">إلغاء</button></div></div>`;}
@@ -808,6 +813,15 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset)retu
   if(t.dataset.ctfile!=null){e.stopImmediatePropagation();const f=t.files[0];t.value='';if(!f)return;flash('جارٍ رفع العقد…');
     try{const a=await upOne(f);await saveCfg({contractFile:{id:a.id,k:a.k,name:a.name,by:myKey(),date:today()}});flash('حُفظ العقد ✓');}catch(x){flash('تعذّر رفع العقد: '+((x&&x.message)||''),'bad');}}},true);
 
+
+const latD=v=>String(v==null?'':v).replace(/[\u0660-\u0669]/g,d=>d.charCodeAt(0)-0x660);
+const MON=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function fmtD(v){const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return esc(v||'');return `<bdi class="dt">${+m[3]} ${MON[+m[2]-1]} ${m[1]}</bdi>`;}
+function dateDecor(){document.querySelectorAll('input[type=date]').forEach(inp=>{let w=inp.parentElement;
+  if(!w.classList.contains('dwrap')){w=document.createElement('span');w.className='dwrap';if(inp.style.width){w.style.width=inp.style.width;inp.style.width='';}inp.parentNode.insertBefore(w,inp);w.appendChild(inp);const l=document.createElement('span');l.className='dlab';w.insertBefore(l,inp);
+    const up=()=>{l.innerHTML=inp.value?fmtD(inp.value):'<span class="sub">اختر التاريخ</span>';w.classList.toggle('dis',inp.disabled);};inp.addEventListener('input',up);inp.addEventListener('change',up);inp.__up=up;}
+  inp.__up&&inp.__up();});}
+
 /* ===== العرض ===== */
 const V={chat:chatv,tl,me,menu,staff,wi,home,partners,budget,site,spend,tasks,rules,dec,calc,log:logv};
 function cur(){const h=(location.hash||'').slice(1);return V[h]?h:'home';}
@@ -820,7 +834,7 @@ function render(){const k=cur();
   if(aid){const e=document.getElementById(aid);if(e){e.focus();if(sel)try{e.setSelectionRange(sel[0],sel[1]);}catch(x){}}}
   document.querySelectorAll('input[type=number],input[type=date],input[inputmode=numeric],input[inputmode=decimal]').forEach(e=>{e.lang='en';e.dir='ltr';});
   const iq=document.getElementById('iq');if(iq&&lastQ){iq.value=lastQ;applyQ(lastQ);}
-  editBar();chatAfter();hydrateThumbs();
+  editBar();chatAfter();hydrateThumbs();dateDecor();
   const mk=myKey();$('#who').textContent=mk?('أنت: '+pName(mk)):'';
   if(!$('#banner').firstChild||!flashT)$('#banner').innerHTML=bannerBase();}
 let rq=0;function schedule(){if((meEdit&&cur()==='me')||gEdit){pending=true;return;}if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const a=document.activeElement;if(a&&a.matches&&a.matches('input:not([type=checkbox]):not([id^="f_"]),textarea,select')&&!a.id.startsWith('f_')){pending=true;return;}render();});}
@@ -828,7 +842,7 @@ let pending=false;document.addEventListener('focusout',()=>{if(pending&&!(meEdit
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.wv==null)return;wv[t.dataset.wv]=t.value;const q=t.dataset.wv.split('_')[0];wv['open_'+q]=1;render();});
 document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.wq)wv['open_'+d.dataset.wq]=d.open?1:0;if(d.dataset&&d.dataset.mo)mopen[d.dataset.mo]=d.open;},true);
 const toLat=v=>v.replace(/[\u0660-\u0669]/g,d=>d.charCodeAt(0)-0x660).replace(/[\u06F0-\u06F9]/g,d=>d.charCodeAt(0)-0x6F0).replace(/\u066B/g,'.').replace(/\u066C/g,',');
-document.addEventListener('input',e=>{const t=e.target;if(!t||t.type==='checkbox'||typeof t.value!=='string')return;const v=toLat(t.value);if(v!==t.value){const p=t.selectionStart;t.value=v;try{t.setSelectionRange(p,p);}catch(x){}}},true);
+document.addEventListener('input',e=>{const t=e.target;if(!t||t.type==='checkbox'||t.tagName==='SELECT'||t.type==='date'||typeof t.value!=='string')return;const v=toLat(t.value);if(v!==t.value){const p=t.selectionStart;t.value=v;try{t.setSelectionRange(p,p);}catch(x){}}},true);
 let lastQ='';function applyQ(v){document.querySelectorAll('[data-iname]').forEach(x=>{x.hidden=!!v&&!x.dataset.iname.includes(v);});document.querySelectorAll('[data-grp]').forEach(g=>{const L=g.nextElementSibling;g.hidden=!!v&&![...L.children].some(c=>!c.hidden);L.hidden=g.hidden;});}
 document.addEventListener('input',e=>{if(e.target.id!=='iq')return;const v=lastQ=e.target.value.trim().toLowerCase();applyQ(v);return;document.querySelectorAll('[data-iname]').forEach(x=>{x.hidden=!!v&&!x.dataset.iname.includes(v);});document.querySelectorAll('[data-grp]').forEach(g=>{const L=g.nextElementSibling;g.hidden=!!v&&![...L.children].some(c=>!c.hidden);L.hidden=g.hidden;});});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tlgo]');if(a)tlOpen=a.dataset.tlgo;},true);
