@@ -163,6 +163,14 @@ bdi.dt{white-space:nowrap}
 .ac-name{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ac-meta{font-size:11px;color:var(--muted)}
 .offb{max-width:980px;margin:0 auto 6px;padding:6px 12px;border-radius:999px;background:var(--warn-soft);color:var(--warn);font-size:13px;text-align:center}
+/* تجاوب مع كل الشاشات */
+html,body{overflow-x:hidden;max-width:100%}
+.item>*,details.item>*{min-width:0}
+details.item{display:block;max-width:100%}details.item>*{max-width:100%;margin-top:6px}details.item .fgrid{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))}
+.tw{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+img,video,iframe{max-width:100%}
+@media (max-width:420px){#tagline,.brand .who{display:none}.brand{gap:8px;padding:8px 10px}.brand img{height:40px}.brand button{padding:4px 9px}}
+@media (min-width:1100px){main,.tabs,.brand{max-width:1080px}}
 /* الدردشة */
 .chat-list{display:flex;flex-direction:column;gap:10px;padding-bottom:12px}
 .msg{max-width:84%;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;overflow-wrap:anywhere}
@@ -211,7 +219,7 @@ bdi.dt{white-space:nowrap}
   var PINK='sub_pin';
   var store={}, since=0, me=null, pin=null, docL={}, colL=[], timer=null, ready, readyRes;
   ready=new Promise(function(r){readyRes=r;});
-  var API='https://script.google.com/macros/s/AKfycbyLF3MAe7sq1LGwAxI1lY5V63UiTcRdT2fR9Y8SJiLPDJ-jz7c8Yyw8yud5NZxa8H00/exec';function call(req){return fetch(API,{method:'POST',body:JSON.stringify(req),redirect:'follow'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).catch(function(e){throw {code:'unavailable',message:(e&&e.message)||String(e)};});}
+  var API='https://script.google.com/macros/s/AKfycbyLF3MAe7sq1LGwAxI1lY5V63UiTcRdT2fR9Y8SJiLPDJ-jz7c8Yyw8yud5NZxa8H00/exec';var SAFE={since:1,file:1,inbox:1,login:1};function call(req,n){n=n||0;return call1(req).catch(function(e){if(SAFE[req.op]&&n<2&&e&&e.code==='unavailable')return new Promise(function(r){setTimeout(r,800*(n+1));}).then(function(){return call(req,n+1);});throw e;});}function call1(req){return fetch(API,{method:'POST',body:JSON.stringify(req),redirect:'follow'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).catch(function(e){throw {code:'unavailable',message:(e&&e.message)||String(e)};});}
   function seg(p){return p.split('/');}
   function snapDoc(p){var d=store[p];return {id:seg(p).pop(),exists:!!d,data:function(){return d?JSON.parse(JSON.stringify(d)):undefined;},metadata:{fromCache:false,hasPendingWrites:false}};}
   function colDocs(c){var n=seg(c).length+1;return Object.keys(store).filter(function(p){return p.indexOf(c+'/')===0&&seg(p).length===n;}).map(snapDoc);}
@@ -482,7 +490,7 @@ function spend(){const m=money2();const T=thr();
   <label class="f">دُفع من<select id="f_sp"><option value="co">حساب المنشأة</option>${P().map(p=>`<option value="${p.k}">جيب ${esc(p.name)}</option>`).join('')}</select></label>
   <label class="f">إن دفعه شريك<select id="f_st"><option value="capital">يُحسب من رأس ماله</option><option value="refund">يُسترد له</option></select></label>
   <label class="f">فاتورة ضريبية؟<select id="f_sv"><option value="">لا</option><option value="1">نعم</option></select></label><label class="f">المورد أو ملاحظة<input id="f_sn"></label><div class="f"><span>المرفقات (فاتورة، صور، فيديو، ملف)</span><label class="upl" style="justify-content:center">📎 اختر أو صوّر<input type="file" multiple accept="image/*,video/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.heic" id="spNewFiles"></label><small id="spNewList">${SPF.length?SPF.map(f=>esc(f.name)).join('، '):'لا مرفقات'}</small></div><button id="addSpend">سجّل</button></div></section>`;
-  if(!st.spend.length)return h+`<div class="empty">لا مصاريف بعد. أول مصروف (رسوم السجل، الإيجار، العربون) سجّلوه هنا.</div>`;
+  if(!st.spend.length)return h+spendFilterBar([])+`<div class="empty">لا مصاريف بعد. أول مصروف (رسوم السجل، الإيجار، العربون) سجّلوه هنا.</div>`;
   const FL=spendFiltered();h+=spendFilterBar(FL);
   h+=`<div class="list">${FL.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.ts||0)-(a.ts||0)).map(s=>{const a=apprState(s);
    return `<div class="item"><div class="hd"><div class="t">${esc(s.item)}<br><small>${latD(esc(s.cat))} · ${fmtD(s.date)} · ${s.paidBy==='co'?'حساب المنشأة':'جيب '+esc(pName(s.paidBy))+(s.treat==='refund'?(s.refunded?' · استُرد':' · يُسترد'):' · من رأس ماله')}${s.note?' · '+esc(s.note):''}</small></div><b>${nb(s.amount)}</b></div>
@@ -894,7 +902,7 @@ document.addEventListener('click',async e=>{
 
 async function upOne(f){const isImg=/^image\//.test(f.type)&&!/heic|heif/i.test(f.type),isVid=/^video\//.test(f.type);if(f.size>25*1024*1024)throw new Error('«'+f.name+'» أكبر من 25 ميجا');const blob=isImg?await shrink(f):f;
   const name=isImg?(f.name||'photo').replace(/\.\w+$/,'')+'.jpg':(f.name||'file');const r=await window.subUpload(blob,name,isImg?'image/jpeg':(f.type||'application/octet-stream'));MEDIA[r.id]=URL.createObjectURL(blob);return {k:isImg?'img':isVid?'vid':'file',id:r.id,name,mime:isImg?'image/jpeg':(f.type||''),size:blob.size||f.size||0};}
-async function upMany(files){const out=[];let i=0;for(const f of files){i++;flash('جارٍ رفع المرفقات '+i+' من '+files.length+'…');out.push(await upOne(f));}return out;}
+async function upMany(files){const out=[];let i=0;for(const f of files){i++;flash('جارٍ رفع المرفقات '+i+' من '+files.length+'…'+(f.size>4*1024*1024?' الملف كبير وقد ياخذ دقيقة أو أكثر، لا تقفل التطبيق.':''));out.push(await upOne(f));}return out;}
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset)return;
   if(t.id==='spNewFiles'){e.stopImmediatePropagation();SPF=SPF.concat([...t.files]);t.value='';const l=document.getElementById('spNewList');if(l)l.textContent=SPF.map(f=>f.name).join('، ');return;}
   if(t.dataset.spfile!=null){e.stopImmediatePropagation();const id=t.dataset.spfile,fs=[...t.files];t.value='';if(!fs.length)return;
