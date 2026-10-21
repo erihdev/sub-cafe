@@ -219,6 +219,22 @@ img,video,iframe{max-width:100%}
 .composer label{background:var(--surface);border:1px solid var(--line)}
 .composer input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .msg .del{background:none;border:none;color:var(--muted);cursor:pointer;padding:0 2px;font-size:13px}
+/* الهوية البصرية */
+.bchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.bchip{background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:6px 12px;font-weight:500;font-size:13.5px}
+.bchip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.bwrap{display:grid;gap:14px;margin-top:12px}
+.bgrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px;align-items:start}
+.bgrid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px;margin-bottom:10px}
+.bfig{margin:0;min-width:0}.bfig img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:var(--line)}
+.bfig figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+.bsrc{display:block;color:var(--muted);font-size:11.5px;margin-top:6px}
+.bdls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px}
+a.bdl{display:grid;gap:2px;border:1px solid var(--line);border-radius:8px;padding:9px 12px;text-decoration:none;color:var(--ink);background:var(--bg);min-width:0}
+a.bdl b{color:var(--accent)}a.bdl small{color:var(--muted);font-size:12px}
+.bsw{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid var(--line);vertical-align:-2px;margin-inline-end:6px}
+.bul{margin:6px 0 0;padding-inline-start:18px;display:grid;gap:3px}.bol{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:3px}
+.bwrap .panel p{margin:6px 0}
 </style>
 
 <header class="top">
@@ -240,6 +256,7 @@ img,video,iframe{max-width:100%}
     <p id="gateErr" style="color:var(--bad);margin:0;min-height:1.4em"></p>
   </form>
 </div>
+<script src="brand.js"></script>
 <script>
 /* طبقة البيانات: نفس واجهة التخزين التي تستخدمها الصفحة، فوق Google Apps Script وورقة قوقل */
 (function(){
@@ -328,7 +345,7 @@ img,video,iframe{max-width:100%}
 (function(){
 'use strict';
 /* ===== ثوابت المحتوى ===== */
-const TABS=[['home','الصورة'],['chat','💬 الدردشة'],['spend','المصاريف'],['tasks','التراخيص والمهام'],['dec','القرارات'],['budget','الميزانية'],['site','بنود التأسيس'],['menu','المنيو والتكلفة'],['partners','الشركاء ورأس المال'],['tl','الجدول الزمني'],['staff','الموظفون'],['calc','الجدوى'],['wi','ماذا لو'],['rules','اتفاق الشركاء'],['dist','توزيع الأرباح'],['me','بيانات الشركاء'],['log','السجل']];
+const TABS=[['home','الصورة'],['chat','💬 الدردشة'],['brand','🎨 الهوية البصرية'],['spend','المصاريف'],['tasks','التراخيص والمهام'],['dec','القرارات'],['budget','الميزانية'],['site','بنود التأسيس'],['menu','المنيو والتكلفة'],['partners','الشركاء ورأس المال'],['tl','الجدول الزمني'],['staff','الموظفون'],['calc','الجدوى'],['wi','ماذا لو'],['rules','اتفاق الشركاء'],['dist','توزيع الأرباح'],['me','بيانات الشركاء'],['log','السجل']];
 const ICATS=['١. الرخص والجهات الحكومية','٢. معدات القهوة','٣. معدات المطبخ والتبريد','٤. تجهيز المكان والمقاولات','٥. الأثاث والديكور','٦. الأنظمة والتقنية','٧. الهوية والتغليف والافتتاح','٨. المخزون الافتتاحي'];
 const ISTAT=[['have','متوفر في المحل','good'],['fix','متوفر ويحتاج تعديل','warn'],['pend','معلّق','bad'],['quote','عرض مستلم','warn'],['ok','معتمد','mut'],['bought','مُشترى','good'],['later','مؤجل / لاحقًا','mut']];
 const OPEN_ST=['fix','pend','quote','ok'];
@@ -1084,7 +1101,7 @@ function dateDecor(){document.querySelectorAll('input[type=date]').forEach(inp=>
   inp.__up&&inp.__up();});}
 
 /* ===== العرض ===== */
-const V={chat:chatv,tl,me,menu,staff,wi,home,partners,budget,site,spend,tasks,rules,dec,calc,dist:distv,log:logv};
+const V={chat:chatv,tl,me,menu,staff,wi,home,partners,budget,site,spend,tasks,rules,dec,calc,dist:distv,log:logv,brand:brandv};
 function cur(){const h=(location.hash||'').slice(1);return V[h]?h:'home';}
 function render(){const k=cur();
   $('#tabs').innerHTML=TABS.map(t=>`<a href="#${t[0]}"${t[0]===k?' aria-current="page"':''}>${t[1]}</a>`).join('');
@@ -1098,6 +1115,7 @@ function render(){const k=cur();
   editBar();chatAfter();hydrateThumbs();dateDecor();sigInit();cdTick();
   const mk=myKey();$('#who').textContent=mk?('أنت: '+pName(mk)):'';
   if(!$('#banner').firstChild||!flashT)$('#banner').innerHTML=bannerBase();}
+window.subRender=render;
 let rq=0;function schedule(){if((meEdit&&cur()==='me')||gEdit||(((SIG.busy&&SIG.strokes.length)||(HSIG.busy&&HSIG.strokes.length))&&cur()==='rules')){pending=true;return;}if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const a=document.activeElement;if(a&&a.matches&&a.matches('input:not([type=checkbox]):not([id^="f_"]),textarea,select')&&!a.id.startsWith('f_')){pending=true;return;}render();});}
 let pending=false;document.addEventListener('focusout',()=>{if(pending&&!(meEdit&&cur()==='me')&&!gEdit){pending=false;setTimeout(render,50);}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.wv==null)return;wv[t.dataset.wv]=t.value;const q=t.dataset.wv.split('_')[0];wv['open_'+q]=1;render();});
