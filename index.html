@@ -229,6 +229,7 @@ img,video,iframe{max-width:100%}
 .bfig{margin:0;min-width:0}.bfig img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:var(--line)}
 .bfig figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 .bsrc{display:block;color:var(--muted);font-size:11.5px;margin-top:6px}
+model-viewer{display:block;border:1px solid var(--line);--poster-color:transparent}.cap{font-size:12px;color:var(--muted);margin-top:4px;text-align:center}
 .bdls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px}
 a.bdl{display:grid;gap:2px;border:1px solid var(--line);border-radius:8px;padding:9px 12px;text-decoration:none;color:var(--ink);background:var(--bg);min-width:0}
 a.bdl b{color:var(--accent)}a.bdl small{color:var(--muted);font-size:12px}
@@ -256,6 +257,7 @@ a.bdl b{color:var(--accent)}a.bdl small{color:var(--muted);font-size:12px}
     <p id="gateErr" style="color:var(--bad);margin:0;min-height:1.4em"></p>
   </form>
 </div>
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <script src="brand.js"></script>
 <script>
 /* طبقة البيانات: نفس واجهة التخزين التي تستخدمها الصفحة، فوق Google Apps Script وورقة قوقل */
