@@ -18,7 +18,7 @@ const bul=a=>`<ul class="bul">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
 const BV={};
 /* ---------- نظرة شاملة ---------- */
 BV.all=()=>`
-${bcard('هوية صُب في صورة واحدة',`<div class="bgrid3">${bimg('logo-system.jpg','الشعار بصيغه الأربع')}${bimg('cup-12oz-burgundy-front.jpg','كوب 12 أونص')}${bimg('cups-lineup-cream.jpg','الأحجام الأربعة')}${bimg('cold-cups-preview.jpg','الأكواب الباردة')}${bimg('sweets-preview.jpg','الحلى')}${bimg('bags-preview.jpg','الأكياس')}${bimg('business-card.jpg','كرت العمل')}${bimg('uniform-preview.jpg','الزي')}${bimg('sign-preview.jpg','الواجهة')}${bimg('social-preview.jpg','السوشال')}${bimg('serve-preview.jpg','التقديم المحلي')}${bimg('seasonal-cup-preview.jpg','كوب الموسم')}</div>
+${bcard('هوية صُب في صورة واحدة',`<div class="bgrid3">${bimg('logo-system.jpg','الشعار بصيغه الأربع')}${bimg('cup-12oz-cream-front.jpg','كوب 12 أونص')}${bimg('cup-9oz-cream.jpg','كوب 9 أونص')}${bimg('freddo-cup-8oz.jpg','كوب الفريدو')}${bimg('sweets-box.jpg','صندوق الحلى')}${bimg('bag-takeaway-cream.jpg','كيس السفري')}${bimg('carrier-espresso-water.jpg','حامل الإسبريسو')}${bimg('jug-1-5L.jpg','صندوق الجك')}${bimg('business-card.jpg','كرت العمل')}${bimg('uniform-preview.jpg','الزي')}${bimg('sign-preview.jpg','الواجهة')}${bimg('social-preview.jpg','السوشال')}${bimg('serve-preview.jpg','التقديم المحلي')}${bimg('seasonal-cup-preview.jpg','كوب الموسم')}</div>
 <p><b>الفكرة الواحدة:</b> خط واحد متصل، ولونان لا ثالث لهما. كل قطعة تحمل الشعار مرة واحدة، صغيرًا، والفراغ يحيط به.</p>
 <p class="sub">كل تصنيف فيه المعاينة وملفات التنزيل والمقاسات. ما يحتاج قالبًا من المورّد موسوم بذلك.</p>`,'ready')}
 ${bcard('جاهزية العناصر',btable(['العنصر','الحالة','ما ينقص'],[
