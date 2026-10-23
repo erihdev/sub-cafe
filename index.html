@@ -1130,7 +1130,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-tlgo]');if
 window.addEventListener('hashchange',()=>{confirmDel=null;meEdit=false;if(gEdit&&buf.size){flash('تُركت '+buf.size+' تعديلات بلا حفظ.','warn');}gEdit=false;buf.clear();render();window.scrollTo(0,0);});
 
 /* ===== الأحداث ===== */
-const pnum=v=>{v=String(v==null?'':v).trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٬|,|\s/g,'').replace(/٫/g,'.').replace(/[^\d.\-]/g,'');return v===''?NaN:+v;};const num=v=>v===''?'':(pnum(v));
+const num=v=>v===''?'':(pnum(v));
 async function saveCfg(patch){const c=Object.assign({},cfg(),patch);await w(()=>db.doc('cfg/main').set(c));}
 document.addEventListener('change',async e=>{const t=e.target;const d=t.dataset;
   if(isEditField(t)&&!(t.id||'').startsWith('f_')){if(gEdit){buf.set(t.id||String(Math.random()),t);editBar();}return;}
