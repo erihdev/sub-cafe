@@ -1130,7 +1130,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-tlgo]');if
 window.addEventListener('hashchange',()=>{confirmDel=null;meEdit=false;if(gEdit&&buf.size){flash('تُركت '+buf.size+' تعديلات بلا حفظ.','warn');}gEdit=false;buf.clear();render();window.scrollTo(0,0);});
 
 /* ===== الأحداث ===== */
-const num=v=>v===''?'':(+v);
+const pnum=v=>{v=String(v==null?'':v).trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٬|,|\s/g,'').replace(/٫/g,'.').replace(/[^\d.\-]/g,'');return v===''?NaN:+v;};const num=v=>v===''?'':(pnum(v));
 async function saveCfg(patch){const c=Object.assign({},cfg(),patch);await w(()=>db.doc('cfg/main').set(c));}
 document.addEventListener('change',async e=>{const t=e.target;const d=t.dataset;
   if(isEditField(t)&&!(t.id||'').startsWith('f_')){if(gEdit){buf.set(t.id||String(Math.random()),t);editBar();}return;}
@@ -1191,10 +1191,10 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   if(d.refund){await w(()=>db.doc('spend/'+d.refund).update({refunded:true}),'سُجّل استرداد مصروف');return;}
   if(d.inv){await w(()=>db.doc('spend/'+d.inv).update({inv:true}),'وصلت فاتورة مصروف');return;}
   const id=b.id;const now=Date.now();
-  if(id==='addContrib'){const a=+val('f_ca');if(!a){flash('اكتب المبلغ.','warn');return;}const p=val('f_cp');if(await w(()=>db.collection('contrib').add({partner:p,amount:a,date:val('f_cd')||today(),note:val('f_cn'),by:myId||'',ts:now}),'سجّل دفعة رأس مال من '+pName(p)+': '+money(a))){['f_ca','f_cn'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
+  if(id==='addContrib'){const a=pnum(val('f_ca'));if(!a){flash('اكتب المبلغ.','warn');return;}const p=val('f_cp');if(await w(()=>db.collection('contrib').add({partner:p,amount:a,date:val('f_cd')||today(),note:val('f_cn'),by:myId||'',ts:now}),'سجّل دفعة رأس مال من '+pName(p)+': '+money(a))){['f_ca','f_cn'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
   else if(id==='addItem'){const n=val('f_in');if(!n){flash('اكتب اسم البند.','warn');return;}if(await w(()=>db.collection('items').add({name:n,cat:val('f_ic'),st:val('f_is'),est:num(val('f_ie')),actual:'',supplier:'',quotes:0,note:val('f_inote'),inv:false,by:myId||'',ts:now}),'أضاف بندًا: '+n)){['f_in','f_ie','f_inote'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
   else if(id==='loadItems'){b.disabled=true;let i=0;for(const t of ITEMS_T){await db.collection('items').add({name:t[1],cat:t[0],st:'need',est:'',actual:'',owner:'',note:'',inv:false,by:myId||'',ts:now+(i++)}).catch(()=>{});}log('أضاف قائمة التجهيزات المقترحة');}
-  else if(id==='addSpend'){const a=+val('f_sa'),it=val('f_si');if(!a||!it){flash('اكتب البيان والمبلغ.','warn');return;}const pb=val('f_sp');
+  else if(id==='addSpend'){const a=pnum(val('f_sa')),it=val('f_si');if(!a||!it){flash('اكتب البيان والمبلغ.','warn');return;}const pb=val('f_sp');
     let att=[];if(SPF.length){b.disabled=true;try{att=await upMany(SPF);}catch(x){b.disabled=false;flash('تعذّر رفع المرفقات: '+((x&&x.message)||''),'bad');return;}b.disabled=false;SPF=[];}
     if(await w(()=>db.collection('spend').add({item:it,cat:val('f_sc'),amount:a,date:val('f_sd')||today(),paidBy:pb,treat:pb==='co'?'':val('f_st'),inv:!!val('f_sv')||att.length>0,att,note:val('f_sn'),appr:myKey()?{[myKey()]:now}:{},by:myId||'',ts:now}),'سجّل مصروفًا: '+it+' '+money(a)+(a>=thr()?' (ينتظر موافقة الجميع)':''))){['f_si','f_sa','f_sn'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';});}}
   else if(id==='addTask'){const t=val('f_tt');if(!t){flash('اكتب المهمة.','warn');return;}if(await w(()=>db.collection('tasks').add({title:t,grp:val('f_tg')||'أخرى',owner:val('f_to'),due:val('f_td'),note:'',done:false,by:myId||'',ts:now}),'أضاف مهمة: '+t)){const x=document.getElementById('f_tt');if(x)x.value='';}}
