@@ -488,7 +488,7 @@ function needDelAppr(col,id){if(col!=='spend')return false;const s=st.spend.find
 function delBtn(col,id){if(needDelAppr(col,id)){const s=st.spend.find(x=>x.id===id);return s.delReq?'':`<button class="ghost" data-delreq="${id}">طلب حذف</button>`;}return confirmDel===col+'/'+id?`<button class="danger" data-del="${col}" data-id="${id}">تأكيد الحذف</button>`:`<button class="ghost" data-ask="${col}/${id}" aria-label="حذف">حذف</button>`;}
 
 function budCalc(){const b=Object.assign({},BUD0,st.bud||{});const items=st.items;
-  const secs=[...new Set(ICATS.concat(items.map(i=>i.cat)))].map(c=>{const L=items.filter(i=>i.cat===c);return {c,est:sum(L,i=>i.est),act:sum(L,i=>i.actual),n:L.length};}).filter(x=>x.n||ICATS.includes(x.c));
+  const secs=[...new Set(ICATS.concat(items.map(i=>i.cat)))].map(c=>{const L=items.filter(i=>i.cat===c);const paid=sum((st.spend||[]).filter(x=>x.cat===c&&!x.delReq),x=>x.amount);const ia=sum(L,i=>i.actual);return {c,est:sum(L,i=>i.est),act:paid||ia,paid,ia,n:L.length};}).filter(x=>x.n||ICATS.includes(x.c));
   const capEst=sum(secs,x=>x.est),capAct=sum(secs,x=>x.act);const monthly=sum(b.monthly,m=>m[2]);const op=monthly*(+b.months||0);
   const cont=(capEst+op)*(+b.cont||0)/100;const total=capEst+op+cont;return {b,secs,capEst,capAct,monthly,op,cont,total};}
 function site(){const items=st.items;const by=k=>items.filter(i=>i.st===k);const ed=cfg().editor;const mk=myKey();const canAct=!ed||ed===mk;
@@ -513,7 +513,7 @@ function site(){const items=st.items;const by=k=>items.filter(i=>i.st===k);const
     <div class="row" style="justify-content:space-between"><small>${diff!=null?(diff>0?tag('تجاوز التقدير بـ'+money(diff),'bad'):diff<0?tag('وفّرتم '+money(-diff),'good'):''):''} ${big&&(+i.quotes||0)<3&&['ok','bought'].includes(i.st)?tag('اعتُمد بأقل من 3 عروض','bad'):''} ${i.st==='bought'&&!i.inv?tag('مُشترى بلا فاتورة نهائية','warn'):''}</small>${delBtn('items',i.id)}</div></div>`;}).join('')}</div>`;});
   return h;}
 function budget(){const r=budCalc(),b=r.b;const ps=P();const pctOk=Math.abs(sum(ps,p=>p.pct)-100)<0.05;
-  let h=`<section><h2>الميزانية</h2><p class="sub">ميزانية التأسيس كما اعتمدها المالك، والتقدير يتحدث تلقائيًّا من «بنود التأسيس»، والفعلي من السعر المسجل. موقع المقهى: صبيا، جازان.</p>`+
+  let h=`<section><h2>الميزانية</h2><p class="sub">ميزانية التأسيس كما اعتمدها المالك، والتقدير يتحدث تلقائيًّا من «بنود التأسيس»، والفعلي هو مجموع المصاريف المسجّلة في «المصاريف» لكل قسم، وإن لم يُسجّل مصروف في القسم يؤخذ السعر الفعلي المكتوب على بنوده. موقع المقهى: صبيا، جازان.</p>`+
   tiles([[nb(r.capEst),'التكاليف الرأسمالية (تقدير)'],[nb(r.op),'رأس المال التشغيلي ('+(+b.months||0)+' أشهر)'],[nb(r.cont),'احتياطي الطوارئ ('+(+b.cont||0)+'٪)',+b.cont?'':'bad'],[nb(r.total),'الإجمالي المطلوب','good']])+`</section>`;
   h+=`<section><h3>حسب القسم</h3><div class="tw"><table><thead><tr><th>القسم</th><th>عدد البنود</th><th>التقدير</th><th>الفعلي</th><th>الفرق</th></tr></thead><tbody>${r.secs.map(x=>`<tr><td>${esc(x.c)}</td><td class="num">${x.n}</td><td>${nb(x.est)}</td><td>${x.act?nb(x.act):'—'}</td><td>${x.act?(x.act-x.est>0?tag('+'+money(x.act-x.est),'bad'):tag(money(x.act-x.est),'good')):'—'}</td></tr>`).join('')}
    <tr><td><b>إجمالي التكاليف الرأسمالية</b></td><td class="num">${st.items.length}</td><td><b>${nb(r.capEst)}</b></td><td><b>${r.capAct?nb(r.capAct):'—'}</b></td><td></td></tr></tbody></table></div></section>`;
