@@ -22,7 +22,7 @@ model-viewer{width:100%;height:78vh;min-height:420px;background:var(--surface)}
 .bub img{display:block;max-width:220px;border-radius:8px;margin-bottom:6px}.bub small{display:block;opacity:.7;font-size:11px;margin-top:4px}.bub.wait{opacity:.6}
 </style>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
-<h1>مجسم مقهى صُب (بالخامات، للمراجعة) <small style="font-weight:400;font-size:12px;opacity:.6">إصدار 87</small></h1>
+<h1>مجسم مقهى صُب (بالخامات، للمراجعة) <small style="font-weight:400;font-size:12px;opacity:.6">إصدار 88</small></h1>
 <p>اسحب بإصبعك للتدوير، وبإصبعين للتقريب والتحريك (أو عجلة الفأرة، والسحب بالزر الأيمن للتحريك). التقريب يصل إلى نصف متر من أي قطعة، والإبعاد حتى 80 م. اضغط على البار (الموزاييك) ليظهر وحده للتعديل، ثم «رجوع للمقهى كاملًا». الأبعاد من المخطط: 14.42 × 4.00، الارتفاع 6.60 (العلوي عند 3.30)، الخارجي 6.60 × 3.60.</p>
 <div style="margin:0 0 8px"><button id="zin" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">＋ تقريب</button><button id="zout" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">－ إبعاد</button><button id="walkbtn" type="button" style="border:1px solid var(--line);background:#F2C14E;color:#1a1612;border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">🚶 جولة مشي</button><button id="inside" type="button" style="border:1px solid var(--line);background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">🚪 ادخل المحل</button><button id="rst" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إعادة الكاميرا</button><button id="wl" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إخفاء الجدران</button><button id="cl" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إخفاء السقف</button><button id="bk" type="button" hidden style="border:1px solid var(--line);background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">رجوع للمقهى كاملًا</button><button id="tg" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit;cursor:pointer">إخفاء الطابق العلوي</button></div>
 <div class="box"><model-viewer id="mv" alt="مجسم المقهى" camera-controls camera-orbit="-40deg 62deg auto" min-camera-orbit="auto 0deg 0.5m" max-camera-orbit="auto 90deg 80m" field-of-view="60deg" min-field-of-view="60deg" max-field-of-view="90deg" interpolation-decay="80" shadow-intensity="0.7" exposure="1.0" environment-image="neutral" touch-action="pan-y"></model-viewer><canvas id="ink"></canvas></div>
@@ -453,19 +453,21 @@ function poseLife(p,dt,t){
   const q=p.root.quaternion;
   if(p.mode==='sit'){ p.b.legs.forEach(l=>{ aim(l.up,V(0,-0.06,1),q); aim(l.lo,V(0,-1,0.15),q); aim(l.ft,V(0,-0.35,1),q); }); }
   if(p.prop && p.carry){ if(p.b.rh){ p.b.rh.updateWorldMatrix(true,false); const hp=p.b.rh.getWorldPosition(new T.Vector3()); p.prop.position.copy(hp).add(new T.Vector3(0,-p.carry,0)); p.prop.rotation.set(0,p.root.rotation.y,0); } }
-  else if(p.prop){ p.drinkT-=dt; const drinking=p.drinkT<1.6 && p.drinkT>0; if(p.drinkT<=0) p.drinkT=6+Math.random()*7;
+  else if(p.prop && p.cupHome && !(p.drinkT<2.2 && p.drinkT>0)){ p.drinkT-=dt; if(p.drinkT<=0) p.drinkT=8+Math.random()*9; p.prop.position.copy(p.cupHome); p.prop.rotation.set(0,p.root.rotation.y+Math.PI*0.5,0); }   // الكوب على الطاولة بين الرشفات
+  else if(p.prop){ p.drinkT-=dt; const drinking=p.drinkT<(p.cupHome?2.2:1.6) && p.drinkT>0; if(p.drinkT<=0) p.drinkT=8+Math.random()*9;
     aim(p.b.ra,V(-0.18,-0.92,0.30),q); aim(p.b.rf,drinking?V(0.30,0.92,0.25):V(0.35,0.12,0.93),q);
     if(p.b.rh){ gripFingers(p.b); placeInHand(p,p.prop,q,0); if(drinking){ p.prop.rotateX(0); p.prop.rotateOnWorldAxis(V(1,0,0).applyQuaternion(q),-0.55); } } }
   if(p.chat){ const s1=Math.sin(t*1.3+p.ph), s2=Math.sin(t*2.1+p.ph*1.7);
     if(p.b.head){ p.b.head.rotateY(p.chat*0.35+0.18*s1); p.b.head.rotateX(0.08*s2); }
     if(p.mode==='sit' && p.b.lf && Math.sin(t*0.5+p.ph)>0.1){ aim(p.b.la,V(0.20,-0.85,0.35),q); aim(p.b.lf,V(-0.15+0.25*s2,0.30+0.2*s1,0.92),q); } }
   poseScen(p);
+  if(p.busy){ const s1=Math.sin(t*(p.busy==='grind'?14:3)); aim(p.b.ra,V(-0.1,-0.7,0.7),q); aim(p.b.rf,V(0.1,0.05+0.06*s1,1),q); aim(p.b.la,V(0.1,-0.7,0.7),q); aim(p.b.lf,V(-0.1,0.05,1),q); if(p.b.head) p.b.head.rotateX(0.3); }
   if(p.typing>0){ p.typing-=dt; const s1=Math.sin(t*9); aim(p.b.ra,V(-0.1,-0.75,0.65),q); aim(p.b.rf,V(0.05,-0.15+0.08*s1,1),q); if(p.b.head) p.b.head.rotateX(0.25); }
   if(p.tray && p.trayFull){ aim(p.b.ra,V(-0.15,-0.9,0.35),q); aim(p.b.rf,V(0.10,0.15,1),q); aim(p.b.la,V(0.15,-0.9,0.35),q); aim(p.b.lf,V(-0.10,0.15,1),q);
     p.tray.position.copy(p.root.position).add(V(0,1.02,0.36).applyQuaternion(q)); p.tray.rotation.y=p.root.rotation.y; p.tray.visible=true; }
   else if(p.tray){ p.tray.visible=false; }
 }
-function walkPath(p,pts,onDone){ p.mode='walk'; p.path=pts.map(a=>B(a[0],a[1],a[2])); p.seg=0; p.onDone=onDone; setAct(p,'Walk',false); }
+function walkPath(p,pts,onDone){ p.mode='walk'; if(p.skirt) p.skirt.visible=true; p.path=navExpand(pts).map(a=>B(a[0],a[1],a[2])); p.seg=0; p.onDone=onDone; setAct(p,'Walk',false); }
 const PERSONAL=0.62;
 function neighbors(p){ const out=[]; const P=p.root.position; for(const o of people){ if(o===p||!o.root.visible||o.mode==='sit') continue; const Q=o.root.position; if(Math.abs(Q.y-P.y)>1.0) continue; const dx=P.x-Q.x, dz=P.z-Q.z, d=Math.hypot(dx,dz); if(d<1.2) out.push({o,dx,dz,d}); }
   if(st.pos && Math.abs(st.pos.y-P.y)<1.0){ const dx=P.x-st.pos.x, dz=P.z-st.pos.z, d=Math.hypot(dx,dz); if(d<1.2) out.push({o:null,dx,dz,d}); } return out; }
@@ -494,6 +496,8 @@ let queue=[];
 function spawnLife(clips){ clips.forEach(c=>{ allClips[c.name]=c; });
   let k=0;
   const cashier=makePerson(k++,'staff'); window.__cashier=cashier; standAt(cashier,7.05,3.25,0,Math.PI/2);   // خلف نقطة البيع داخل منطقة الخدمة، وجهه للعميل
+  try{ buildNav(); }catch(e){ console.warn('nav',e); }
+  barista2=makePerson(k++,'staff'); standAt(barista2,5.85,3.30,0,0); barista2.wait=1; barista2.after=baristaLoop;
   const waiter=makePerson(k++,'staff'); waiter.tray=brandTray(); scene.add(waiter.tray); waiter.trayFull=true; standAt(waiter,PICK[0],PICK[1],0,Math.PI);
   const tables=[[11.0,1.55,0],[10.3,1.5,0],[12.3,1.6,0]];
   const waiterLoop=()=>{ const tb=tables[Math.floor(Math.random()*tables.length)]; waiter.trayFull=true;
@@ -502,7 +506,7 @@ function spawnLife(clips){ clips.forEach(c=>{ allClips[c.name]=c; });
   const sitters=[[10.45,0.50,0.55,Math.PI,'cup'],[11.35,0.50,0.55,Math.PI,'cup'],[12.30,0.50,0.55,Math.PI,'esp'],[11.85,1.90,0.45,0,'cup'],[12.65,1.10,0.45,-Math.PI/2,'cup'],
     [0.72,1.35,3.78,Math.PI/2,'cup'],[0.72,2.25,3.78,Math.PI/2,'cup'],[1.80,3.10,3.76,0,'cup'],[3.20,3.35,3.75,Math.PI/2,'cup'],[5.00,3.35,3.75,-Math.PI/2,'esp'],[3.20,0.65,3.75,Math.PI/2,'cup'],[5.00,0.65,3.75,-Math.PI/2,'cup'],[4.1,2.5,3.75,0,'esp'],[7.45,2.35,4.06,Math.PI/2,'esp']];
   const VAR=['9','12','freddo','9','season','12'];
-  sitters.forEach((s0,i)=>{ const p=makePerson(k++,'guest'); sitAt(p,s0[0],s0[1],s0[2],s0[3]); p.prop=s0[4]==='esp'?espCupOnly():cupOf(VAR[i%VAR.length]); if(s0[4]==='esp'){ const sc=engraveSaucer(new T.Group()); const sm=new T.Mesh(new T.CylinderGeometry(0.06,0.05,0.008,24),new T.MeshStandardMaterial({color:0xF8F3D0,roughness:.25})); sm.position.y=0.004; sc.add(sm); const tp=B(s0[0],s0[1],0), fw=new T.Vector3(Math.sin(s0[3]),0,Math.cos(s0[3])); const px=tp.x+fw.x*0.55, pz=tp.z+fw.z*0.55; ray.set(new T.Vector3(px,s0[2]+0.6,pz),new T.Vector3(0,-1,0)); ray.far=1.5; const hh=ray.intersectObjects(cols.map(c=>c.m),false)[0]; sc.position.set(px,hh?hh.point.y+0.001:s0[2],pz); scene.add(sc); } scene.add(p.prop); p.chat=(i%2?1:-1); });
+  sitters.forEach((s0,i)=>{ const p=makePerson(k++,'guest'); sitAt(p,s0[0],s0[1],s0[2],s0[3]); p.prop=s0[4]==='esp'?espCupOnly():cupOf(VAR[i%VAR.length]); { const tp=B(s0[0],s0[1],0), fw=new T.Vector3(Math.sin(s0[3]),0,Math.cos(s0[3])); for(const dd of [0.45,0.6,0.75,0.9]){ const px=tp.x+fw.x*dd, pz=tp.z+fw.z*dd; ray.set(new T.Vector3(px,s0[2]+0.5,pz),new T.Vector3(0,-1,0)); ray.far=1.2; const hh=ray.intersectObjects(cols.map(c=>c.m),false)[0]; if(hh && hh.point.y>s0[2]-0.35 && hh.point.y<s0[2]+0.35){ p.cupHome=new T.Vector3(px+(s0[4]==='esp'?0.05:-0.06),hh.point.y+0.001,pz); break; } } } if(s0[4]==='esp'){ const sc=engraveSaucer(new T.Group()); const sm=new T.Mesh(new T.CylinderGeometry(0.06,0.05,0.008,24),new T.MeshStandardMaterial({color:0xF8F3D0,roughness:.25})); sm.position.y=0.004; sc.add(sm); const tp=B(s0[0],s0[1],0), fw=new T.Vector3(Math.sin(s0[3]),0,Math.cos(s0[3])); const px=tp.x+fw.x*0.55, pz=tp.z+fw.z*0.55; ray.set(new T.Vector3(px,s0[2]+0.6,pz),new T.Vector3(0,-1,0)); ray.far=1.5; const hh=ray.intersectObjects(cols.map(c=>c.m),false)[0]; sc.position.set(px,hh?hh.point.y+0.001:s0[2],pz); scene.add(sc); } scene.add(p.prop); p.chat=(i%2?1:-1); });
   [[10.85,1.2,0.46],[11.85,1.1,0.46],[4.1,3.35,3.72],[4.1,0.65,3.72],[1.18,2.0,3.66]].forEach((t0,i)=>{ placeAt(cake(),t0[0]+0.06,t0[1]-0.05,t0[2]); placeAt(cupOf(['9','esp','12','freddo','season'][i%5]),t0[0]-0.1,t0[1]+0.06,t0[2]); });
   placeBrand(); setTimeout(()=>{ trueBrand(scene); emissiveMats=null; applyTime(timeMode==='live'?liveHour():timeHour); },1600); try{ addRealMirror(); }catch(e){ console.warn('mirror',e); }
   // السيناريوهات: كل زبون يدخل، يطلب من الكاشير، ثم يكمل قصته، ويرجع يدخل من جديد
@@ -634,7 +638,7 @@ function startOrder(p){ if(p.ordering) return; p.ordering=true; p.chat=0.6; cons
 function enterAndQueue(p,onOrdered){ p.root.visible=true; p.root.position.copy(B(OUT[0],OUT[1],0)); p.prop=null; p.carry=0; p.phone=null; p.onOrdered=onOrdered;
   walkPath(p,[OUT,DOOR_IN,[12.6,2.55,0],ENTRY],()=>{ queue2.push(p); goSlot(p); }); }
 function leave(p,next){ walkPath(p,[here(p),[9.6,1.6,0],[10.8,2.45,0],[12.6,2.55,0],DOOR_X,OUT_X],()=>{ if(p.prop){ scene.remove(p.prop); p.prop=null; } if(p.phone){ scene.remove(p.phone); p.phone=null; } p.carry=0; p.root.visible=false; setTimeout(next,3000+Math.random()*5000); }); }
-function pickup(p,make,then){ walkPath(p,[here(p),[7.3,1.5,0],PICKUP],()=>{ faceToB(p,PICKUP[0],2.4); p.wait=5; p.after=()=>{ make(); try{ sfxClink(p.root.position.clone()); }catch(_){} then(); }; }); }
+function pickup(p,make,then){ walkPath(p,[here(p),[7.3,1.5,0],PICKUP],()=>{ faceToB(p,PICKUP[0],2.4); p.chat=0.3; orders.push({serve:()=>{ p.chat=0; make(); try{ sfxClink(p.root.position.clone()); }catch(_){} then(); }}); }); }   // ينتظر حتى يحضّر الباريستا طلبه ويسلّمه
 // (أ) يطلب، ينتظر عند المكينة، يأخذ طلبه ويخرج
 function scenTakeaway(p){ const loop=()=>enterAndQueue(p,()=>pickup(p,()=>{ const r=Math.floor(Math.random()*4); if(r===0){ p.prop=takeBag(); p.carry=0.30; } else if(r===1){ p.prop=brandObj('carrier-cream')||takeBag(); p.carry=0.14; } else p.prop=cupOf(r===2?'12':'freddo'); scene.add(p.prop); },()=>leave(p,loop))); loop(); }
 // (ب) يطلب، يأخذ طلبه ويصعد للطابق الثاني ويجلس على البار، ثم ينزل ويخرج
@@ -733,6 +737,52 @@ function applyTime(h){ if(!hemiL) return; timeHour=h; const df=dayFactor(h), nig
   const sl=$('wtime'); if(sl && document.activeElement!==sl) sl.value=h.toFixed(2); }
 let _lastTimeApply=0;
 function tickTime(t){ if(timeMode==='live' && t-_lastTimeApply>15000){ _lastTimeApply=t; applyTime(liveHour()); } }
+
+// ======================= خريطة مشي تتجنّب الأثاث + باريستا يحضّر طلبات الزبائن (طلب ضيف الله 6 نوفمبر 2026) =======================
+// شبكة 20 سم لكل طابق مبنية من أجسام المحل نفسها: الطاولات والكراسي والكنب والبار والجدران عوائق، ومسار كل شخص يُحسب بالبحث (A*) حولها
+const NAV={cell:0.2, floors:{}};
+function buildNav(){ const C=NAV.cell, irregular=/^(zebra_curve)/;
+  const boxes=cols.map(c=>({b:c.b,m:c.m,name:c.m.name||''}));
+  const irrPts=[]; for(const c of boxes){ if(irregular.test(c.name)){ const pos=c.m.geometry.attributes.position, v=new T.Vector3(); for(let i=0;i<pos.count;i++){ v.fromBufferAttribute(pos,i).applyMatrix4(c.m.matrixWorld); irrPts.push([v.x,-v.z,v.y]); } } }
+  for(const [key,f,xmax] of [['g',0,18.6],['u',3.30,14.42]]){ const nx=Math.ceil(xmax/C), ny=Math.ceil(4.0/C), occ=new Uint8Array(nx*ny), floor=new Uint8Array(nx*ny);
+    const cand=boxes.filter(c=>!irregular.test(c.name) && c.b.max.y>f-0.06 && c.b.min.y<f+1.7);
+    for(let iy=0;iy<ny;iy++) for(let ix=0;ix<nx;ix++){ const bx=(ix+0.5)*C, by=(iy+0.5)*C; let blocked=false, hasFloor=(key==='g');
+      for(const c of cand){ const B0=c.b; const inX=x=>x>=B0.min.x-0.02 && x<=B0.max.x+0.02, inZ=z=>z>=B0.min.z-0.02 && z<=B0.max.z+0.02;
+        let hit=false; for(const [ox,oy] of [[0,0],[0.07,0.07],[-0.07,0.07],[0.07,-0.07],[-0.07,-0.07]]){ if(inX(bx+ox) && inZ(-(by+oy))){ hit=true; break; } }
+        if(!hit) continue;
+        if(Math.abs(B0.max.y-f)<0.06) { hasFloor=true; continue; }                 // سطح الأرضية
+        if(B0.max.y>f+0.12 && B0.min.y<f+1.6) { blocked=true; break; } }
+      if(!hasFloor) blocked=true; occ[iy*nx+ix]=blocked?1:0; }
+    for(const [x,y,z] of irrPts){ if(z<f-0.1||z>f+2.5) continue; const ix=Math.floor(x/C), iy=Math.floor(y/C); if(ix>=0&&iy>=0&&ix<nx&&iy<ny) occ[iy*nx+ix]=1; }
+    // تضخيم العوائق بنصف عرض الجسم (~20 سم)
+    const inf=new Uint8Array(occ); for(let iy=0;iy<ny;iy++) for(let ix=0;ix<nx;ix++) if(occ[iy*nx+ix]) for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const jx=ix+dx, jy=iy+dy; if(jx>=0&&jy>=0&&jx<nx&&jy<ny) inf[jy*nx+jx]=1; }
+    NAV.floors[key]={f,nx,ny,occ:inf}; } }
+function navFloor(z){ return z>2.2?NAV.floors.u:NAV.floors.g; }
+function navFree(F,ix,iy){ return ix>=0&&iy>=0&&ix<F.nx&&iy<F.ny&&!F.occ[iy*F.nx+ix]; }
+function navSnap(F,x,y){ let ix=Math.floor(x/NAV.cell), iy=Math.floor(y/NAV.cell); if(navFree(F,ix,iy)) return [ix,iy];
+  for(let r=1;r<8;r++) for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){ if(Math.max(Math.abs(dx),Math.abs(dy))!==r) continue; if(navFree(F,ix+dx,iy+dy)) return [ix+dx,iy+dy]; } return [ix,iy]; }
+function navLine(F,a,b){ const n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/(NAV.cell*0.5)); for(let i=1;i<n;i++){ const x=a[0]+(b[0]-a[0])*i/n, y=a[1]+(b[1]-a[1])*i/n; if(!navFree(F,Math.floor(x/NAV.cell),Math.floor(y/NAV.cell))) return false; } return true; }
+function navRoute(a,b){ const F=navFloor(a[2]); if(!F) return [a,b]; const C=NAV.cell, s=navSnap(F,a[0],a[1]), g=navSnap(F,b[0],b[1]);
+  const N=F.nx*F.ny, gs=new Float32Array(N).fill(1e9), came=new Int32Array(N).fill(-1), open=[[0,s[0],s[1]]]; gs[s[1]*F.nx+s[0]]=0; const goal=g[1]*F.nx+g[0]; let found=false, iter=0;
+  while(open.length && iter++<6000){ let bi=0; for(let i=1;i<open.length;i++) if(open[i][0]<open[bi][0]) bi=i; const [,cx,cy]=open.splice(bi,1)[0], ci=cy*F.nx+cx; if(ci===goal){ found=true; break; }
+    for(const [dx,dy,w] of [[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]]){ const nx=cx+dx, ny=cy+dy; if(!navFree(F,nx,ny)) continue; if(dx&&dy&&(!navFree(F,cx+dx,cy)||!navFree(F,cx,cy+dy))) continue;
+      const ni=ny*F.nx+nx, ng=gs[ci]+w; if(ng<gs[ni]){ gs[ni]=ng; came[ni]=ci; open.push([ng+Math.hypot(g[0]-nx,g[1]-ny),nx,ny]); } } }
+  if(!found) return [a,b];
+  const cells=[]; for(let c=goal;c!==-1;c=came[c]) cells.push([(c%F.nx+0.5)*C,(Math.floor(c/F.nx)+0.5)*C]); cells.reverse();
+  const pts=[[a[0],a[1]]].concat(cells).concat([[b[0],b[1]]]); const out=[pts[0]]; let k=0;           // تنعيم: أبعد نقطة مرئية مباشرة
+  while(k<pts.length-1){ let j=pts.length-1; while(j>k+1 && !navLine(F,pts[k],pts[j])) j--; out.push(pts[j]); k=j; }
+  return out.map(q=>[q[0],q[1],a[2]]); }
+function navExpand(pts){ if(!NAV.floors.g) return pts; const out=[pts[0]];
+  for(let i=1;i<pts.length;i++){ const a=pts[i-1], b=pts[i]; const flat=Math.abs(a[2]-b[2])<0.05 && (Math.abs(a[2])<0.05 || Math.abs(a[2]-3.30)<0.05);
+    if(flat){ const r=navRoute(a,b); for(let j=1;j<r.length;j++) out.push(r[j]); } else out.push(b); } return out; }
+// ---- باريستا ثانٍ يحضّر طلبات الزبائن: يطحن، يستخلص، ثم يسلّم الكوب للزبون عند نقطة الاستلام
+const orders=[]; let barista2=null;
+function baristaLoop(){ const b=barista2; if(!b) return; const o=orders.shift();
+  if(!o){ b.wait=0.8; b.after=baristaLoop; return; }
+  b.busy=null; walkPath(b,[here(b),[5.15,3.30,0]],()=>{ faceToB(b,5.15,2.4); b.busy='grind'; try{ sfxGrind(b.root.position.clone()); }catch(_){} b.wait=2.2; b.after=()=>{
+    b.busy=null; walkPath(b,[here(b),[5.85,3.30,0]],()=>{ faceToB(b,5.85,2.4); b.busy='brew'; try{ sfxBrew(b.root.position.clone()); }catch(_){} b.wait=4; b.after=()=>{
+      b.busy=null; b.prop=o.cupPreview?o.cupPreview():cupOf('9'); scene.add(b.prop);
+      walkPath(b,[here(b),[6.15,2.98,0]],()=>{ faceToB(b,6.1,1.5); b.wait=0.8; b.after=()=>{ scene.remove(b.prop); b.prop=null; o.serve(); baristaLoop(); }; }); }; }); }; }); }
 
 // خريطة صغيرة للطابق مع موقعك واتجاهك
 function drawMap(){ const mc=$('wmap'); if(!mc||!st.pos) return; const x=mc.getContext('2d'), w=mc.width, h=mc.height, sx=w/14.42, sy=h/4.0;
@@ -856,7 +906,7 @@ $('wsend').addEventListener('click',async()=>{ const text=$('wtext').value.trim(
     const p=st.pos; const ref=await db.collection('notes').add({text, img:out.toDataURL('image/jpeg',0.62), model:'walk', pos:[+p.x.toFixed(2),+(-p.z).toFixed(2),+p.y.toFixed(2)], yaw:+st.yaw.toFixed(3), pitch:+st.pitch.toFixed(3), view:st.third?'third':'first', at:new Date().toISOString()});
     $('wtext').value=''; wedit.hidden=true; editing=false; say('جارٍ تنبيه Claude…', 3000); const r=await window.pokeClaude(ref&&ref.id,text); say(r==='ok'?'✓ وصل طلبك وبدأ Claude التعديل الآن — الرد يظهر في قائمة التعليقات':'✓ حُفظ طلبك — سيقرؤه Claude في الفحص التالي ('+r+')', 7000);
   }catch(x){ wsst.textContent='تعذّر الإرسال: '+(x.code||x.message||x); } });
-window.__walk={prof:()=>({avg:+(_prof.s/Math.max(1,_prof.n)).toFixed(2),max:+_prof.mx.toFixed(1),frames:_prof.n}), get ppl(){return people.map(p=>[p.kind,p.root.visible,p.mode,+p.root.position.x.toFixed(2),+(-p.root.position.z).toFixed(2),+p.root.position.y.toFixed(2)])}, get dbg(){return {g:groups.length,gr:grinders.map(v=>[v.x.toFixed(2),v.y.toFixed(2),v.z.toFixed(2)]),grp:groups.map(v=>[v.x.toFixed(2),v.y.toFixed(2),v.z.toFixed(2)]),cs,csT,held,cust:people.length,near:!!nearGroup,btn:wcoffee.hidden+'|'+wcoffee.textContent.trim()}}, get av(){return avatar}, get T(){return T}, st,keys,get ready(){return ready}, B:(x,y,z)=>B(x,y,z)};
+window.__walk={b2:()=>barista2?[barista2.mode,barista2.busy||'',+barista2.root.position.x.toFixed(2),+(-barista2.root.position.z).toFixed(2),orders.length]:null, prof:()=>({avg:+(_prof.s/Math.max(1,_prof.n)).toFixed(2),max:+_prof.mx.toFixed(1),frames:_prof.n}), get ppl(){return people.map(p=>[p.kind,p.root.visible,p.mode,+p.root.position.x.toFixed(2),+(-p.root.position.z).toFixed(2),+p.root.position.y.toFixed(2)])}, get dbg(){return {g:groups.length,gr:grinders.map(v=>[v.x.toFixed(2),v.y.toFixed(2),v.z.toFixed(2)]),grp:groups.map(v=>[v.x.toFixed(2),v.y.toFixed(2),v.z.toFixed(2)]),cs,csT,held,cust:people.length,near:!!nearGroup,btn:wcoffee.hidden+'|'+wcoffee.textContent.trim()}}, get av(){return avatar}, get T(){return T}, st,keys,get ready(){return ready}, B:(x,y,z)=>B(x,y,z)};
 })();
 </script>
 </body></html>
