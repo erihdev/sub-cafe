@@ -22,7 +22,7 @@ model-viewer{width:100%;height:78vh;min-height:420px;background:var(--surface)}
 .bub img{display:block;max-width:220px;border-radius:8px;margin-bottom:6px}.bub small{display:block;opacity:.7;font-size:11px;margin-top:4px}.bub.wait{opacity:.6}
 </style>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
-<h1>مجسم مقهى صُب (بالخامات، للمراجعة) <small style="font-weight:400;font-size:12px;opacity:.6">إصدار 88</small></h1>
+<h1>مجسم مقهى صُب (بالخامات، للمراجعة) <small style="font-weight:400;font-size:12px;opacity:.6">إصدار 89</small></h1>
 <p>اسحب بإصبعك للتدوير، وبإصبعين للتقريب والتحريك (أو عجلة الفأرة، والسحب بالزر الأيمن للتحريك). التقريب يصل إلى نصف متر من أي قطعة، والإبعاد حتى 80 م. اضغط على البار (الموزاييك) ليظهر وحده للتعديل، ثم «رجوع للمقهى كاملًا». الأبعاد من المخطط: 14.42 × 4.00، الارتفاع 6.60 (العلوي عند 3.30)، الخارجي 6.60 × 3.60.</p>
 <div style="margin:0 0 8px"><button id="zin" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">＋ تقريب</button><button id="zout" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">－ إبعاد</button><button id="walkbtn" type="button" style="border:1px solid var(--line);background:#F2C14E;color:#1a1612;border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">🚶 جولة مشي</button><button id="inside" type="button" style="border:1px solid var(--line);background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">🚪 ادخل المحل</button><button id="rst" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إعادة الكاميرا</button><button id="wl" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إخفاء الجدران</button><button id="cl" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إخفاء السقف</button><button id="bk" type="button" hidden style="border:1px solid var(--line);background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">رجوع للمقهى كاملًا</button><button id="tg" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit;cursor:pointer">إخفاء الطابق العلوي</button></div>
 <div class="box"><model-viewer id="mv" alt="مجسم المقهى" camera-controls camera-orbit="-40deg 62deg auto" min-camera-orbit="auto 0deg 0.5m" max-camera-orbit="auto 90deg 80m" field-of-view="60deg" min-field-of-view="60deg" max-field-of-view="90deg" interpolation-decay="80" shadow-intensity="0.7" exposure="1.0" environment-image="neutral" touch-action="pan-y"></model-viewer><canvas id="ink"></canvas></div>
@@ -197,7 +197,7 @@ async function boot(){
   T=window.THREE; ray=new T.Raycaster();
   // الألوان المكتوبة بالرمز (مثل #52131E) تُحوَّل لفضاء الألوان الصحيح، وإلا ظهر العنابي ورديًا والكريمي باهتًا
   if(!T.Color.prototype.__srgb){ const _sh=T.Color.prototype.setHex; T.Color.prototype.setHex=function(h){ _sh.call(this,h); return this.convertSRGBToLinear(); }; T.Color.prototype.__srgb=1; }
-  renderer=new T.WebGLRenderer({canvas:cv, antialias:devicePixelRatio<1.5, powerPreference:'high-performance'}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.25)); renderer.outputEncoding=T.sRGBEncoding; renderer.toneMapping=T.ACESFilmicToneMapping; renderer.toneMappingExposure=0.78;
+  renderer=new T.WebGLRenderer({canvas:cv, antialias:devicePixelRatio<1.5, powerPreference:'high-performance'}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.25)); renderer.outputEncoding=T.sRGBEncoding; cv.addEventListener('webglcontextlost',ev=>{ ev.preventDefault(); say('كرت الشاشة توقف لحظة — جارٍ الاستعادة…',8000); },false); cv.addEventListener('webglcontextrestored',()=>{ say('عادت الجولة',3000); },false); renderer.toneMapping=T.ACESFilmicToneMapping; renderer.toneMappingExposure=0.78;
   scene=new T.Scene(); scene.background=new T.Color(0xEFE9DF);
   camera=new T.PerspectiveCamera(75,1,0.03,300); scene.add(camera);
   // إضاءة واقعية: انعكاسات بيئة داخلية + إضاءة دافئة من السقف في الطابقين
@@ -424,7 +424,7 @@ function makeShemagh(red){ const g=new T.Group(); const m=new T.MeshStandardMate
 const people=[]; let baseMan=null, doorAuto=false;
 const SHIRTS=[0x2F4A6B,0x3B3B40,0xD8D4CA,0x4A5D6E,0x2E2E2E,0x5E6B4A,0x7A8B99,0xEDEBE4,0x405040,0x1F2A3A,0x8C8478,0x5A5A5E];
 let p_look=null, p_thobeSkirt=null;
-function makePerson(k, kind){ p_look=null; p_thobeSkirt=null; const c=T.SkeletonUtils.clone(baseMan); c.traverse(o=>{ if(o.isSkinnedMesh){ o.geometry=o.geometry.clone(); o.geometry.computeBoundingSphere(); o.geometry.boundingSphere.radius*=1.6; o.frustumCulled=true; } }); c.scale.setScalar(0.94); c.position.y=-0.05; c.traverse(o=>{ if(o.isMesh && o.material){ o.material=Array.isArray(o.material)?o.material.map(m=>m.clone()):o.material.clone(); o.material.transparent=false; } });
+function makePerson(k, kind){ p_look=null; p_thobeSkirt=null; const c=T.SkeletonUtils.clone(baseMan); c.traverse(o=>{ if(o.isSkinnedMesh){ o.frustumCulled=false; } }); c.scale.setScalar(0.94); c.position.y=-0.05; c.traverse(o=>{ if(o.isMesh && o.material){ o.material=Array.isArray(o.material)?o.material.map(m=>m.clone()):o.material.clone(); o.material.transparent=false; } });
   const root=new T.Group(); root.add(c); scene.add(root); root.updateMatrixWorld(true);
   if(kind==='staff') dressStaff(c, root, false);
   else { const L=GUEST_LOOKS[k%GUEST_LOOKS.length]; p_look=L; c.traverse(o=>{ if(!o.isMesh) return;
@@ -657,7 +657,7 @@ function poseScen(p){ const q=p.root.quaternion;
 // المرآة تعكس المكان ومن يمر أمامها (أنت والزبائن) لحظيًا، وتُحدَّث فقط حين تكون قريبًا منها حتى لا تُثقل الجولة
 let mirrorObj=null;
 function addRealMirror(){ if(!T.Reflector) return; const w=0.85, h=2.60;
-  const g=new T.PlaneGeometry(w,h); const r=new T.Reflector(g,{clipBias:0.003,textureWidth:512,textureHeight:1024,color:0xc8ccd0});
+  const g=new T.PlaneGeometry(w,h); const r=new T.Reflector(g,{clipBias:0.003,textureWidth:384,textureHeight:768,color:0xc8ccd0});
   r.position.copy(B(3.026,1.175,0.10+h/2)); r.rotation.y=Math.PI/2; scene.add(r); mirrorObj=r;
   scene.traverse(o=>{ if(o.isMesh && o.material && o.material.name==='مرآة') o.visible=false; }); }
 function updateMirror(){ if(!mirrorObj) return; const d=camera.position.distanceTo(mirrorObj.position); const facing=(camera.position.x-mirrorObj.position.x)>0;
@@ -730,8 +730,8 @@ function applyTime(h){ if(!hemiL) return; timeHour=h; const df=dayFactor(h), nig
   if(!emissiveMats){ emissiveMats=[]; scene.traverse(o=>{ if(!o.isMesh||!o.material) return; (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(m.emissive && m.emissive.getHex()!==0 && !emissiveMats.find(e=>e.m===m)) emissiveMats.push({m,base:m.emissiveIntensity||1}); }); }); }
   const on = night>0.05 ? 1 : 0.25;   // نهارًا خافتة، ليلًا كاملة
   emissiveMats.forEach(e=>{ e.m.emissiveIntensity=e.base*lerp(0.25,1.6,cl01(night*1.2)); });
-  if(!nightLights.length){ [[12.0,2.0,2.7],[8.6,2.0,2.7],[5.2,2.0,2.7],[9.0,2.0,6.0],[3.0,2.0,6.0]].forEach(q=>{ const pl=new T.PointLight(0xFFD9A8,0,8,2); pl.position.copy(B(q[0],q[1],q[2])); scene.add(pl); nightLights.push(pl); }); }
-  nightLights.forEach(pl=>pl.intensity=0.85*cl01(night*1.3));
+  // داخل المحل ليلًا: إضاءة دافئة من اللمبات (عامة) بدل أضواء نقطية ثقيلة
+  if(night>0.05){ hemiL.intensity=lerp(0.95,0.62,cl01(night)); hemiL.color.setRGB(1.0,0.86,0.68); }
   renderer.toneMappingExposure=lerp(0.92,0.78,df);
   const tl=$('wclock'); if(tl){ const hh=Math.floor(h)%24, mm=Math.floor((h%1)*60); tl.textContent=(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm+(timeMode==='live'?' · الآن':''); }
   const sl=$('wtime'); if(sl && document.activeElement!==sl) sl.value=h.toFixed(2); }
@@ -851,7 +851,10 @@ wcup.addEventListener('click',()=>{
     heldObj=null; camera.remove(cup); scene.add(cup); cup.position.set(p.x,(hh?hh.point.y:st.pos.y)+0.002,p.z); cup.rotation.set(0,0,0); held=false; say('وضعت الكوب'); }
 });
 const _prof={n:0,s:0,mx:0};
-function loop(t){ if(!running) return; const dt=Math.min(window.__dtmax||0.06,(t-(last||t))/1000); last=t; if(ready){ const _t0=performance.now(); try{ step(dt); }catch(e){ if(!window.__se){ window.__se=1; console.warn('step',e&&e.stack); } } try{ updateLife(dt,t/1000); }catch(e){ if(!window.__ce){ window.__ce=1; console.warn('life',e&&e.stack); } } try{ updateMirror(); updateListener(); tickTime(t); }catch(_){} try{ drawMap(); }catch(e){ if(!window.__me){ window.__me=1; console.warn('map',e&&e.stack); } } const _d=performance.now()-_t0; _prof.n++; _prof.s+=_d; if(_d>_prof.mx) _prof.mx=_d; } renderer.render(scene,camera); requestAnimationFrame(loop); }
+function loop(t){ if(!running) return; const dt=Math.min(window.__dtmax||0.06,(t-(last||t))/1000); last=t; if(ready){ const _t0=performance.now(); try{ step(dt); }catch(e){ if(!window.__se){ window.__se=1; console.warn('step',e&&e.stack); } } try{ updateLife(dt,t/1000); }catch(e){ if(!window.__ce){ window.__ce=1; console.warn('life',e&&e.stack); } } try{ updateMirror(); updateListener(); tickTime(t); }catch(_){} try{ drawMap(); }catch(e){ if(!window.__me){ window.__me=1; console.warn('map',e&&e.stack); } } const _d=performance.now()-_t0; _prof.n++; _prof.s+=_d; if(_d>_prof.mx) _prof.mx=_d; } requestAnimationFrame(loop); try{ renderer.render(scene,camera); }catch(e){ showErr('رسم',e); } }
+function showErr(where,e){ const m=(e&&(e.message||e))+''; if(window.__lastErr===m) return; window.__lastErr=m; console.error(where,e); const el=$('wmsg'); if(el){ el.textContent='تنبيه ('+where+'): '+m.slice(0,140); el.style.opacity=1; } }
+window.addEventListener('error',ev=>{ if(!W.hidden) showErr('صفحة',ev.error||ev.message); });
+window.addEventListener('unhandledrejection',ev=>{ if(!W.hidden) showErr('تحميل',ev.reason); });
 function resize(){ if(!renderer) return; const w=W.clientWidth||innerWidth, h=W.clientHeight||innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
 // عصا تحكم مزدوجة مثل ألعاب الجوال
 function stick(el,onv){ const kn=el.querySelector('.knob'); let id=null, c=null; const RAD=46;
@@ -883,7 +886,7 @@ const pre=()=>{ ensureBoot().catch(()=>{ bootP=null; }); }; if('requestIdleCallb
 $('wtime').addEventListener('input',e=>{ timeMode='manual'; applyTime(+e.target.value); }); $('wnow').addEventListener('click',()=>{ timeMode='live'; applyTime(liveHour()); });
 $('wsnd').addEventListener('click',()=>{ initAudio(); setSound(!soundOn); }); $('wmus').addEventListener('click',()=>{ initAudio(); setMusic(!musicOn); });
 $('walkbtn').addEventListener('click',async()=>{ W.hidden=false; running=true; last=0; initAudio(); if(AC&&AC.state==='suspended') AC.resume(); if(AC) master.gain.setTargetAtTime(soundOn?0.9:0,AC.currentTime,0.1);
-  try{ await ensureBoot(); resize(); if(ready) say('العصا اليسرى للمشي، واليمنى للالتفات والنظر للأعلى والأسفل', 5000); requestAnimationFrame(loop); }catch(_){ say('تعذّر تشغيل الجولة على هذا الجهاز'); } });
+  try{ requestAnimationFrame(loop); await ensureBoot(); resize(); if(ready) say('العصا اليسرى للمشي، واليمنى للالتفات والنظر للأعلى والأسفل', 5000); else say('جارٍ تحميل المحل…',20000); }catch(_){ say('تعذّر تشغيل الجولة على هذا الجهاز'); } });
 // التقاط صورة من الجولة + الرسم بالأحمر + الإرسال مباشرة إلى ملاحظات الصفحة (يستقبلها Claude ويبدأ التعديل)
 const wedit=$('wedit'), sc=$('wshotc'), ik=$('wink'), wsst=$('wsst'); let shotImg=null, drawing=false, lastPt=null, editing=false;
 $('wshot').addEventListener('click',()=>{ if(!renderer||!ready) return;
