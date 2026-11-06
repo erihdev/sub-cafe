@@ -22,7 +22,7 @@ model-viewer{width:100%;height:78vh;min-height:420px;background:var(--surface)}
 .bub img{display:block;max-width:220px;border-radius:8px;margin-bottom:6px}.bub small{display:block;opacity:.7;font-size:11px;margin-top:4px}.bub.wait{opacity:.6}
 </style>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
-<h1>مجسم مقهى صُب (بالخامات، للمراجعة) <small style="font-weight:400;font-size:12px;opacity:.6">إصدار 84</small></h1>
+<h1>مجسم مقهى صُب (بالخامات، للمراجعة) <small style="font-weight:400;font-size:12px;opacity:.6">إصدار 85</small></h1>
 <p>اسحب بإصبعك للتدوير، وبإصبعين للتقريب والتحريك (أو عجلة الفأرة، والسحب بالزر الأيمن للتحريك). التقريب يصل إلى نصف متر من أي قطعة، والإبعاد حتى 80 م. اضغط على البار (الموزاييك) ليظهر وحده للتعديل، ثم «رجوع للمقهى كاملًا». الأبعاد من المخطط: 14.42 × 4.00، الارتفاع 6.60 (العلوي عند 3.30)، الخارجي 6.60 × 3.60.</p>
 <div style="margin:0 0 8px"><button id="zin" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">＋ تقريب</button><button id="zout" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">－ إبعاد</button><button id="walkbtn" type="button" style="border:1px solid var(--line);background:#F2C14E;color:#1a1612;border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">🚶 جولة مشي</button><button id="inside" type="button" style="border:1px solid var(--line);background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">🚪 ادخل المحل</button><button id="rst" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إعادة الكاميرا</button><button id="wl" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إخفاء الجدران</button><button id="cl" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">إخفاء السقف</button><button id="bk" type="button" hidden style="border:1px solid var(--line);background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer;margin-left:6px">رجوع للمقهى كاملًا</button><button id="tg" type="button" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit;cursor:pointer">إخفاء الطابق العلوي</button></div>
 <div class="box"><model-viewer id="mv" alt="مجسم المقهى" camera-controls camera-orbit="-40deg 62deg auto" min-camera-orbit="auto 0deg 0.5m" max-camera-orbit="auto 90deg 80m" field-of-view="60deg" min-field-of-view="60deg" max-field-of-view="90deg" interpolation-decay="80" shadow-intensity="0.7" exposure="1.0" environment-image="neutral" touch-action="pan-y"></model-viewer><canvas id="ink"></canvas></div>
@@ -262,6 +262,7 @@ function step(dt){
   bob = moving ? bob+dt*9 : bob*0.85;
   if(mixer){ const want=moving?(acts.Walk||acts.Idle):acts.Idle; if(want && want!==curAct){ want.reset().play(); if(curAct) curAct.crossFadeTo(want,0.25,false); curAct=want; }
     if(acts.Walk) acts.Walk.timeScale=(f<-0.1?-1:1); mixer.update(dt); }
+  updateHeld();
   // الأرضية والدرج: صعود تلقائي للدرجات، ونزول بالجاذبية
   const h=hits(new T.Vector3(st.pos.x,st.pos.y+0.5,st.pos.z),new T.Vector3(0,-1,0),40)[0], fy=h?h.point.y:-50;
   if(fy>=st.pos.y-0.03){ st.pos.y=fy; st.vy=0; }
@@ -443,8 +444,10 @@ function poseLife(p,dt,t){
     if(p.b.head){ p.b.head.rotateY(p.chat*0.35+0.18*s1); p.b.head.rotateX(0.08*s2); }
     if(p.mode==='sit' && p.b.lf && Math.sin(t*0.5+p.ph)>0.1){ aim(p.b.la,V(0.20,-0.85,0.35),q); aim(p.b.lf,V(-0.15+0.25*s2,0.30+0.2*s1,0.92),q); } }
   poseScen(p);
-  if(p.tray){ aim(p.b.ra,V(-0.15,-0.9,0.35),q); aim(p.b.rf,V(0.10,0.15,1),q); aim(p.b.la,V(0.15,-0.9,0.35),q); aim(p.b.lf,V(-0.10,0.15,1),q);
-    p.tray.position.copy(p.root.position).add(V(0,1.02,0.36).applyQuaternion(q)); p.tray.rotation.y=p.root.rotation.y; p.tray.visible=!!p.trayFull; }
+  if(p.typing>0){ p.typing-=dt; const s1=Math.sin(t*9); aim(p.b.ra,V(-0.1,-0.75,0.65),q); aim(p.b.rf,V(0.05,-0.15+0.08*s1,1),q); if(p.b.head) p.b.head.rotateX(0.25); }
+  if(p.tray && p.trayFull){ aim(p.b.ra,V(-0.15,-0.9,0.35),q); aim(p.b.rf,V(0.10,0.15,1),q); aim(p.b.la,V(0.15,-0.9,0.35),q); aim(p.b.lf,V(-0.10,0.15,1),q);
+    p.tray.position.copy(p.root.position).add(V(0,1.02,0.36).applyQuaternion(q)); p.tray.rotation.y=p.root.rotation.y; p.tray.visible=true; }
+  else if(p.tray){ p.tray.visible=false; }
 }
 function walkPath(p,pts,onDone){ p.mode='walk'; p.path=pts.map(a=>B(a[0],a[1],a[2])); p.seg=0; p.onDone=onDone; setAct(p,'Walk',false); }
 const PERSONAL=0.62;
@@ -473,7 +476,7 @@ const STAIRS_UP=[[13.6,2.6,0],[14.05,3.57,0.05],[9.3,3.57,1.62],[8.75,3.57,1.82]
 let queue=[];
 function spawnLife(clips){ clips.forEach(c=>{ allClips[c.name]=c; });
   let k=0;
-  const cashier=makePerson(k++,'staff'); standAt(cashier,7.05,3.25,0,Math.PI/2);   // خلف نقطة البيع داخل منطقة الخدمة، وجهه للعميل
+  const cashier=makePerson(k++,'staff'); window.__cashier=cashier; standAt(cashier,7.05,3.25,0,Math.PI/2);   // خلف نقطة البيع داخل منطقة الخدمة، وجهه للعميل
   const waiter=makePerson(k++,'staff'); waiter.tray=brandTray(); scene.add(waiter.tray); waiter.trayFull=true; standAt(waiter,PICK[0],PICK[1],0,Math.PI);
   const tables=[[11.0,1.55,0],[10.3,1.5,0],[12.3,1.6,0]];
   const waiterLoop=()=>{ const tb=tables[Math.floor(Math.random()*tables.length)]; waiter.trayFull=true;
@@ -610,7 +613,7 @@ const MIRROR=[3.72,1.18,0], STANDBAR=[5.80,0.62,0], UPSTOOL=[7.25,1.65], UPSTOOL
 const queue2=[];
 function faceToB(p,bx,by){ const t=B(bx,by,0); p.root.rotation.y=Math.atan2(t.x-p.root.position.x,t.z-p.root.position.z); }
 function goSlot(p){ const i=queue2.indexOf(p); if(i<0) return; const sl=QSP[Math.min(i,QSP.length-1)]; walkPath(p,[here(p),sl],()=>{ faceToB(p,POS_AT[0],POS_AT[1]); if(queue2.indexOf(p)===0) startOrder(p); }); }
-function startOrder(p){ if(p.ordering) return; p.ordering=true; p.chat=0.6; p.wait=4.5; p.after=()=>{ p.ordering=false; p.chat=0; queue2.shift(); queue2.forEach(goSlot); const f=p.onOrdered; p.onOrdered=null; f&&f(); }; }
+function startOrder(p){ if(p.ordering) return; p.ordering=true; p.chat=0.6; const cs_=window.__cashier; if(cs_){ cs_.typing=4.5; } p.wait=4.5; p.after=()=>{ p.ordering=false; p.chat=0; queue2.shift(); queue2.forEach(goSlot); const f=p.onOrdered; p.onOrdered=null; f&&f(); }; }
 function enterAndQueue(p,onOrdered){ p.root.visible=true; p.root.position.copy(B(OUT[0],OUT[1],0)); p.prop=null; p.carry=0; p.phone=null; p.onOrdered=onOrdered;
   walkPath(p,[OUT,DOOR_IN,[12.6,2.55,0],ENTRY],()=>{ queue2.push(p); goSlot(p); }); }
 function leave(p,next){ walkPath(p,[here(p),[9.6,1.6,0],[10.8,2.45,0],[12.6,2.55,0],DOOR_IN,OUT],()=>{ if(p.prop){ scene.remove(p.prop); p.prop=null; } if(p.phone){ scene.remove(p.phone); p.phone=null; } p.carry=0; p.root.visible=false; setTimeout(next,3000+Math.random()*5000); }); }
@@ -651,10 +654,24 @@ function makeCup(){
   const crema=new T.Mesh(new T.CircleGeometry(0.038,24),new T.MeshStandardMaterial({color:0xB07A45,roughness:.5})); crema.rotation.x=-Math.PI/2; crema.position.y=0.07; liq.add(crema); crema.position.y=0.036;
   g.add(outer,base,handle,liq); return {g,liq};
 }
+
+// ما تحمله بيدك: في المنظور الثالث يُثبّت على يد الشخصية اليمنى وتنثني الذراع أمامك، وفي المنظور الأول أمام الكاميرا
+let heldObj=null, heldFP=null; const _hb={};
+function playerBone(n){ if(_hb[n]!==undefined) return _hb[n]; let r=null; avatar.traverse(o=>{ if(!r && o.isBone && o.name===n) r=o; }); _hb[n]=r; return r; }
+function holdItem(obj,fp){ dropHeld(); heldObj=obj; heldFP=fp||[0.15,-0.19,-0.42]; scene.add(obj); }
+function dropHeld(){ if(heldObj){ scene.remove(heldObj); camera.remove(heldObj); } heldObj=null; }
+function updateHeld(){ if(!heldObj) return;
+  if(st.third){ const q=avatar.quaternion, ra=playerBone('RightArm'), rf=playerBone('RightForeArm'), rh=playerBone('RightHand');
+    if(ra&&rf&&rh){ aimBone(ra,V(-0.18,-0.92,0.30).applyQuaternion(q)); aimBone(rf,V(0.25,0.30,0.92).applyQuaternion(q)); rh.updateWorldMatrix(true,false);
+      if(heldObj.parent!==scene){ camera.remove(heldObj); scene.add(heldObj); }
+      heldObj.position.copy(rh.getWorldPosition(new T.Vector3())).add(V(0.0,-0.04,0.05).applyQuaternion(q)); heldObj.quaternion.copy(q); return; } }
+  if(heldObj.parent!==camera){ scene.remove(heldObj); camera.add(heldObj); } heldObj.position.set(heldFP[0],heldFP[1],heldFP[2]); heldObj.rotation.set(0.15,0.4,0); }
+function milkPitcher(){ const g=new T.Group(); const m=new T.Mesh(new T.CylinderGeometry(0.038,0.045,0.10,24,1,true),new T.MeshStandardMaterial({color:0xD5D8DB,metalness:.9,roughness:.25,side:T.DoubleSide})); m.position.y=0.05;
+  const milk=new T.Mesh(new T.CircleGeometry(0.036,20),new T.MeshStandardMaterial({color:0xF7F3EA,roughness:.6})); milk.rotation.x=-Math.PI/2; milk.position.y=0.07; const h=new T.Mesh(new T.TorusGeometry(0.025,0.005,6,12,Math.PI),m.material); h.position.set(-0.05,0.06,0); h.rotation.z=Math.PI/2; g.add(m,milk,h); return g; }
 function makePF(full){ const g=new T.Group(); const stl=new T.MeshStandardMaterial({color:0xC9CCD0,metalness:.9,roughness:.25}); const blk=new T.MeshStandardMaterial({color:0x1d1d1d,roughness:.5});
   const bsk=new T.Mesh(new T.CylinderGeometry(0.036,0.032,0.03,24),stl); const hd=new T.Mesh(new T.BoxGeometry(0.024,0.022,0.13),blk); hd.position.set(0,-0.004,0.085);
   g.add(bsk,hd); if(full){ const cf=new T.Mesh(new T.CylinderGeometry(0.031,0.031,0.004,24),new T.MeshStandardMaterial({color:0x3a2416,roughness:.9})); cf.position.y=0.016; g.add(cf); } return g; }
-function holdPF(full){ if(pf) camera.remove(pf); pf=makePF(full); pf.position.set(0.14,-0.2,-0.42); pf.rotation.set(0.2,0.5,0); camera.add(pf); }
+function holdPF(full){ pf=makePF(full); holdItem(pf,[0.14,-0.2,-0.42]); }
 function csDone(){
   if(cs==='grinding'){ cs='ground'; holdPF(true); say('طحنت 18 غراماً في الذراع — ادكّها الآن'); }
   else if(cs==='tamping'){ cs='tamped'; say('دكّيت البن — ركّب الذراع في المكينة'); }
@@ -662,8 +679,8 @@ function csDone(){
 }
 wcoffee.addEventListener('click',()=>{ const a=wcoffee.querySelector('span').textContent;
   if(a==='اطحن البن'){ cs='grinding'; csT=2.2; say('جارٍ الطحن…'); }
-  else if(a==='ادكّ البن'){ cs='tamping'; csT=1.0; if(pf){ pf.position.y=-0.17; } say('جارٍ الدك…'); }
-  else if(a==='ركّب الذراع'){ if(pf){ camera.remove(pf); pf=null; } cs='locked'; say('الذراع مركّب — ابدأ الاستخلاص'); }
+  else if(a==='ادكّ البن'){ cs='tamping'; csT=1.0; say('جارٍ الدك…'); }
+  else if(a==='ركّب الذراع'){ dropHeld(); pf=null; cs='locked'; say('الذراع مركّب — ابدأ الاستخلاص'); }
   else if(a==='ابدأ الاستخلاص' && nearGroup){
     const c=makeCup(); cupObj=c; const p=nearGroup.clone();
     ray.set(p.clone().add(new T.Vector3(0,-0.17,0)),new T.Vector3(0,-1,0)); ray.far=0.5; const hh=ray.intersectObjects(near3,false)[0];
@@ -671,15 +688,15 @@ wcoffee.addEventListener('click',()=>{ const a=wcoffee.querySelector('span').tex
     const stream=new T.Mesh(new T.CylinderGeometry(0.003,0.003,Math.max(0.05,p.y-c.g.position.y-0.06),6),new T.MeshStandardMaterial({color:0x4A2A15}));
     stream.position.set(p.x,(p.y+c.g.position.y+0.06)/2,p.z); scene.add(stream);
     brew={t:0,cup:c.g,liq:c.liq,stream,done:false}; cup=c.g; cs='brewing'; say('جارٍ استخلاص الإسبريسو… 25 ثانية في الواقع'); }
-  else if(a==='بخّر الحليب'){ cs='steaming'; csT=3.0; say('جارٍ تبخير الحليب…'); }
-  else if(a==='اسكب الحليب' && cupObj){ const cr=cupObj.liq.children[0]; if(cr) cr.material.color.set(0xD9B48A); cupObj.liq.material.color.set(0x8a5a36); cs='poured'; say('لاتيه جاهز — خذ الكوب'); }
+  else if(a==='بخّر الحليب'){ holdItem(milkPitcher(),[0.14,-0.2,-0.42]); cs='steaming'; csT=3.0; say('جارٍ تبخير الحليب…'); }
+  else if(a==='اسكب الحليب' && cupObj){ dropHeld(); const cr=cupObj.liq.children[0]; if(cr) cr.material.color.set(0xD9B48A); cupObj.liq.material.color.set(0x8a5a36); cs='poured'; say('لاتيه جاهز — خذ الكوب'); }
 });
 wcup.addEventListener('click',()=>{
-  if(!held && (cs==='brewed'||cs==='poured') && cup){ if(brew) scene.remove(brew.stream); cs='idle'; camera.add(cup); cup.position.set(0.16,-0.17,-0.42); cup.rotation.set(0,0,0); held=true; brew=null; say('معك كوب قهوة — امشِ به أو ضعه على أي سطح'); return; }
+  if(!held && (cs==='brewed'||cs==='poured') && cup){ if(brew) scene.remove(brew.stream); cs='idle'; scene.remove(cup); holdItem(cup,[0.16,-0.17,-0.42]); held=true; brew=null; say('معك كوب قهوة — امشِ به أو ضعه على أي سطح'); return; }
   if(held){ const look=new T.Vector3(); camera.getWorldDirection(look); look.y=0; look.normalize();
     const p=st.pos.clone().add(new T.Vector3(0,1.6,0)).addScaledVector(look,0.55);
     ray.set(p,new T.Vector3(0,-1,0)); ray.far=1.7; const hh=ray.intersectObjects(near3,false)[0];
-    camera.remove(cup); scene.add(cup); cup.position.set(p.x,(hh?hh.point.y:st.pos.y)+0.002,p.z); held=false; say('وضعت الكوب'); }
+    heldObj=null; camera.remove(cup); scene.add(cup); cup.position.set(p.x,(hh?hh.point.y:st.pos.y)+0.002,p.z); cup.rotation.set(0,0,0); held=false; say('وضعت الكوب'); }
 });
 const _prof={n:0,s:0,mx:0};
 function loop(t){ if(!running) return; const dt=Math.min(window.__dtmax||0.06,(t-(last||t))/1000); last=t; if(ready){ const _t0=performance.now(); try{ step(dt); }catch(e){ if(!window.__se){ window.__se=1; console.warn('step',e&&e.stack); } } try{ updateLife(dt,t/1000); }catch(e){ if(!window.__ce){ window.__ce=1; console.warn('life',e&&e.stack); } } try{ drawMap(); }catch(e){ if(!window.__me){ window.__me=1; console.warn('map',e&&e.stack); } } const _d=performance.now()-_t0; _prof.n++; _prof.s+=_d; if(_d>_prof.mx) _prof.mx=_d; } renderer.render(scene,camera); requestAnimationFrame(loop); }
