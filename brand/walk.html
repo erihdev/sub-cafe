@@ -30,11 +30,11 @@ model-viewer{width:100%;height:78vh;min-height:420px;background:var(--surface)}
 <div id="notes" class="chat"></div>
 
 
-<script type="text/plain" id="glbFull" data-src="3d/walk-full.a8301ebaad.glb"></script>
+<script type="text/plain" id="glbFull" data-src="3d/walk-full.a498b009a6.glb"></script>
 <script type="text/plain" id="glbBar" data-src="3d/walk-bar.b030f272f8.glb"></script>
 <script type="text/plain" id="glbMan" data-src="3d/walk-man.b69cec7a5c.glb"></script>
 <script type="text/plain" id="glbAnim" data-src="3d/walk-anim.50dc858dc0.glb"></script>
-<script type="text/plain" id="glbGround" data-src="3d/walk-ground.f48970da51.glb"></script>
+<script type="text/plain" id="glbGround" data-src="3d/walk-ground.30c79d3cfd.glb"></script>
 <script>
 (function(){
 const toUrl=id=>{const el0=document.getElementById(id); if(el0.dataset.src) return el0.dataset.src; const s=atob(el0.textContent.trim());const u8=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u8[i]=s.charCodeAt(i);return URL.createObjectURL(new Blob([u8],{type:'model/gltf-binary'}));};
@@ -519,16 +519,16 @@ function spawnLife(clips){ clips.forEach(c=>{ allClips[c.name]=c; });
     walkPath(waiter,[here(waiter),[9.2,1.55,0],tb],()=>{ waiter.wait=2.2; waiter.after=()=>{ waiter.trayFull=false; walkPath(waiter,[here(waiter),[9.2,1.55,0],PICK],()=>{ waiter.wait=2.5; waiter.after=waiterLoop; }); }; }); };
   waiter.wait=1.5; waiter.after=waiterLoop;
   const sitters=[[10.45,0.50,0.55,Math.PI,'cup'],[11.35,0.50,0.55,Math.PI,'cup'],[12.30,0.50,0.55,Math.PI,'esp'],[11.85,1.90,0.45,0,'cup'],[12.65,1.10,0.45,-Math.PI/2,'cup'],
-    [0.72,1.35,3.78,Math.PI/2,'cup'],[0.72,2.25,3.78,Math.PI/2,'cup'],[1.80,3.10,3.76,0,'cup'],[3.20,3.35,3.75,Math.PI/2,'cup'],[5.00,3.35,3.75,-Math.PI/2,'esp'],[3.20,0.65,3.75,Math.PI/2,'cup'],[5.00,0.65,3.75,-Math.PI/2,'cup'],[4.1,2.5,3.75,0,'esp'],[7.45,2.35,4.06,Math.PI/2,'esp']];
+    [0.72,1.35,3.78,Math.PI/2,'cup'],[0.72,2.25,3.78,Math.PI/2,'cup'],[1.80,3.10,3.76,0,'cup'],[3.20,3.69,3.75,Math.PI/2,'cup'],[5.00,3.69,3.75,-Math.PI/2,'esp'],[3.20,0.31,3.75,Math.PI/2,'cup'],[5.00,0.31,3.75,-Math.PI/2,'cup'],[4.1,3.02,3.75,Math.PI,'cup'],[7.45,2.35,4.06,Math.PI/2,'esp']];
   const VAR=['9','12','freddo','9','season','12'];
   sitters.forEach((s0,i)=>{ const p=makePerson(k++,'guest'); sitAt(p,s0[0],s0[1],s0[2],s0[3]); p.prop=s0[4]==='esp'?espCupOnly():cupOf(VAR[i%VAR.length]); { const tp=B(s0[0],s0[1],0), fw=new T.Vector3(Math.sin(s0[3]),0,Math.cos(s0[3])); for(const dd of [0.45,0.6,0.75,0.9]){ const px=tp.x+fw.x*dd, pz=tp.z+fw.z*dd; ray.set(new T.Vector3(px,s0[2]+0.5,pz),new T.Vector3(0,-1,0)); ray.far=1.2; const hh=ray.intersectObjects(cols.map(c=>c.m),false)[0]; if(hh && hh.point.y>s0[2]-0.35 && hh.point.y<s0[2]+0.35){ p.cupHome=new T.Vector3(px+(s0[4]==='esp'?0.05:-0.06),hh.point.y+0.001,pz); break; } } } if(s0[4]==='esp'){ const sc=engraveSaucer(new T.Group()); const sm=new T.Mesh(new T.CylinderGeometry(0.06,0.05,0.008,24),new T.MeshStandardMaterial({color:0xF8F3D0,roughness:.25})); sm.position.y=0.004; sc.add(sm); const tp=B(s0[0],s0[1],0), fw=new T.Vector3(Math.sin(s0[3]),0,Math.cos(s0[3])); const px=tp.x+fw.x*0.55, pz=tp.z+fw.z*0.55; ray.set(new T.Vector3(px,s0[2]+0.6,pz),new T.Vector3(0,-1,0)); ray.far=1.5; const hh=ray.intersectObjects(cols.map(c=>c.m),false)[0]; sc.position.set(px,hh?hh.point.y+0.001:s0[2],pz); scene.add(sc); } scene.add(p.prop); p.chat=(i%2?1:-1); });
-  [[10.85,1.2,0.46],[11.85,1.1,0.46],[4.1,3.35,3.72],[4.1,0.65,3.72],[1.18,2.0,3.66]].forEach((t0,i)=>{ placeAt(cake(),t0[0]+0.06,t0[1]-0.05,t0[2]); placeAt(cupOf(['9','esp','12','freddo','season'][i%5]),t0[0]-0.1,t0[1]+0.06,t0[2]); });
+  [[10.85,1.2,0.46],[11.85,1.1,0.46],[4.1,0.23,3.72],[1.18,2.0,3.66]].forEach((t0,i)=>{ placeAt(cake(),t0[0]+0.06,t0[1]-0.05,t0[2]); placeAt(cupOf(['9','esp','12','freddo','season'][i%5]),t0[0]-0.1,t0[1]+0.06,t0[2]); });
   placeBrand(); setTimeout(()=>{ trueBrand(scene); emissiveMats=null; applyTime(timeMode==='live'?liveHour():timeHour); },1600); try{ addRealMirror(); }catch(e){ console.warn('mirror',e); }
   // السيناريوهات: كل زبون يدخل، يطلب من الكاشير، ثم يكمل قصته، ويرجع يدخل من جديد
   const agents=[[scenTakeaway,0],[scenMirror,2500],[scenUpstairs,6000],[scenTakeaway,9500],[scenTakeaway,15000]];
   agents.forEach(([fn,delay])=>{ const p=makePerson(k++,'guest'); p.root.visible=false; p.root.position.copy(B(OUT[0],OUT[1],0)); setTimeout(()=>fn(p),delay); });
   const strol=makePerson(k++,'guest'); standAt(strol,6.0,2.0,3.30,Math.PI/2);
-  const sLoop=()=>walkPath(strol,[here(strol),[2.6,2.0,3.3],[2.6,1.6,3.3],[6.2,1.6,3.3],[6.0,2.0,3.3]],()=>{ strol.wait=3; strol.after=sLoop; }); strol.wait=1; strol.after=sLoop;
+  const sLoop=()=>walkPath(strol,[here(strol),[2.6,2.2,3.3],[2.6,1.85,3.3],[6.2,1.85,3.3],[6.0,2.2,3.3]],()=>{ strol.wait=3; strol.after=sLoop; }); strol.wait=1; strol.after=sLoop;
 }
 function updateLife(dt,t){
   let nearDoorNpc=false;
@@ -615,7 +615,7 @@ function placeBrand(){
   // علبة الحلى من مجسم الهوية
   const sw=brandObj('sweets-cream'); if(sw) placeAt(sw,12.0,1.0,0.46,0.4);
   // صواني الإسبريسو بطقمها الكامل على طاولات الإسبريسو
-  placeAt(brandTray(),4.1,2.05,3.72,0); placeAt(brandTray(),11.85,1.25,0.46,0.3);
+  placeAt(brandTray(),4.1,3.77,3.72,0); placeAt(brandTray(),11.85,1.25,0.46,0.3);
 }
 
 // ======================= نقطة البيع والسيناريوهات (طلب ضيف الله 6 نوفمبر 2026) =======================
