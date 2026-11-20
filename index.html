@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#52131E">
+<meta name="theme-color" content="#B2734C">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,20 +22,20 @@
 <style>
 /* التخطيط: شريط أقسام علوي ثابت، ثم عمود واحد بعرض مريح؛ بطاقات الأرقام في الأعلى والقوائم تحتها */
 :root{
-  --bg:#FFFFD9; --surface:#FFFFF0; --ink:#52131E; --muted:#8A4A55; --line:#E9E4B9;
-  --accent:#52131E; --accent-ink:#FFFFD9; --accent-soft:#F3EDC4;
+  --bg:#FFFFD9; --surface:#FFFFF0; --ink:#6E4128; --muted:#8F6A52; --line:#E9E4B9;
+  --accent:#B2734C; --accent-ink:#FFFFD9; --accent-soft:#F3EDC4;
   --warn:#8A5A00; --warn-soft:#FBF1C8; --bad:#A3271E; --bad-soft:#F8E0DC; --good:#1E6E42; --good-soft:#DFF0E2;
   --display:'Reem Kufi','IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
   --body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,Arial,sans-serif;
   --r:12px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#3B0D15; --surface:#52131E; --ink:#FFFFD9; --muted:#E3D6B0; --line:#6E2834;
-  --accent:#FFFFD9; --accent-ink:#52131E; --accent-soft:#6E2834;
+  --bg:#2E1E15; --surface:#4A2F20; --ink:#FFFFD9; --muted:#E3D6B0; --line:#6B4630;
+  --accent:#FFFFD9; --accent-ink:#4A2F20; --accent-soft:#6B4630;
   --warn:#F0C65A; --warn-soft:#4A3010; --bad:#F2A49C; --bad-soft:#5A1F1B; --good:#8ED9AC; --good-soft:#1E3B2A; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#3B0D15; --surface:#52131E; --ink:#FFFFD9; --muted:#E3D6B0; --line:#6E2834;
-  --accent:#FFFFD9; --accent-ink:#52131E; --accent-soft:#6E2834;
+  --bg:#2E1E15; --surface:#4A2F20; --ink:#FFFFD9; --muted:#E3D6B0; --line:#6B4630;
+  --accent:#FFFFD9; --accent-ink:#4A2F20; --accent-soft:#6B4630;
   --warn:#F0C65A; --warn-soft:#4A3010; --bad:#F2A49C; --bad-soft:#5A1F1B; --good:#8ED9AC; --good-soft:#1E3B2A; color-scheme:dark}
 *{box-sizing:border-box}
 html{direction:rtl}
@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15p
 a{color:var(--accent);font-weight:600}
 .num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
-.brandbar{background:#52131E;color:#FFFFD9}
+.brandbar{background:#B2734C;color:#FFFFD9}
 .brand{display:flex;align-items:center;gap:14px;padding:8px 16px;max-width:980px;margin:0 auto}
 .brand img{display:block;height:48px;width:auto}
 .brandbar .who,.brandbar #tagline{color:#FFFFD9;opacity:.92}
@@ -249,7 +249,7 @@ a.bdl b{color:var(--accent)}a.bdl small{color:var(--muted);font-size:12px}
 
 <div id="gate" style="position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px">
   <form id="gateForm" style="width:100%;max-width:340px;display:grid;gap:12px;text-align:center" autocomplete="off">
-    <div style="background:#52131E;border-radius:14px;padding:18px;display:flex;justify-content:center"><img id="gateLogo" alt="صُب" style="height:64px"></div>
+    <div style="background:#B2734C;border-radius:14px;padding:18px;display:flex;justify-content:center"><img id="gateLogo" alt="صُب" style="height:64px"></div>
     <h2 style="margin:0">ملف شركاء صُب</h2>
     <p class="sub" style="margin:0">اكتب رمز الدخول الخاص بك</p>
     <input id="gatePin" inputmode="numeric" pattern="[0-9]*" maxlength="10" dir="ltr" lang="en" style="text-align:center;font-size:24px;letter-spacing:.4em" aria-label="رمز الدخول">
