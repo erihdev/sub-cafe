@@ -30,11 +30,11 @@ model-viewer{width:100%;height:78vh;min-height:420px;background:var(--surface)}
 <div id="notes" class="chat"></div>
 
 
-<script type="text/plain" id="glbFull" data-src="3d/walk-full.ea7f50c071.glb"></script>
+<script type="text/plain" id="glbFull" data-src="3d/walk-full.7e3f60ec04.glb"></script>
 <script type="text/plain" id="glbBar" data-src="3d/walk-bar.b030f272f8.glb"></script>
 <script type="text/plain" id="glbMan" data-src="3d/walk-man.b69cec7a5c.glb"></script>
 <script type="text/plain" id="glbAnim" data-src="3d/walk-anim.50dc858dc0.glb"></script>
-<script type="text/plain" id="glbGround" data-src="3d/walk-ground.492311b0e9.glb"></script>
+<script type="text/plain" id="glbGround" data-src="3d/walk-ground.32f8ce5f87.glb"></script>
 <script>
 (function(){
 const toUrl=id=>{const el0=document.getElementById(id); if(el0.dataset.src) return el0.dataset.src; const s=atob(el0.textContent.trim());const u8=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u8[i]=s.charCodeAt(i);return URL.createObjectURL(new Blob([u8],{type:'model/gltf-binary'}));};
@@ -666,9 +666,9 @@ function poseScen(p){ const q=p.root.quaternion;
 // ======================= المرآة الحقيقية والأصوات والموسيقى (طلب ضيف الله 6 نوفمبر 2026) =======================
 // المرآة تعكس المكان ومن يمر أمامها (أنت والزبائن) لحظيًا، وتُحدَّث فقط حين تكون قريبًا منها حتى لا تُثقل الجولة
 let mirrorObj=null;
-function addRealMirror(){ if(!T.Reflector) return; const w=0.85, h=2.60;
-  const g=new T.PlaneGeometry(w,h); const r=new T.Reflector(g,{clipBias:0.003,textureWidth:384,textureHeight:768,color:0xc8ccd0});
-  r.position.copy(B(3.026,1.175,0.10+h/2)); r.rotation.y=Math.PI/2; scene.add(r); mirrorObj=r;
+function addRealMirror(){ if(!T.Reflector) return; const w=1.35, h=3.00;
+  const g=new T.PlaneGeometry(w,h); const r=new T.Reflector(g,{clipBias:0.003,textureWidth:512,textureHeight:1024,color:0xc8ccd0});
+  r.position.copy(B(3.026,1.425,0.00+h/2)); r.rotation.y=Math.PI/2; scene.add(r); mirrorObj=r;
   scene.traverse(o=>{ if(o.isMesh && o.material && o.material.name==='مرآة') o.visible=false; }); }
 function updateMirror(){ if(!mirrorObj) return; const d=camera.position.distanceTo(mirrorObj.position); const facing=(camera.position.x-mirrorObj.position.x)>0;
   mirrorObj.visible = d<7 && facing && Math.abs(camera.position.y-mirrorObj.position.y)<2.5; }
