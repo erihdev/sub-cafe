@@ -102,7 +102,7 @@ window.pokeClaude=async function(noteId,text){ try{ const db=await claude.use('d
   await mcp.callTool('Claude Code Remote','fire_trigger',{trigger_id:String(tid),text:'طلب تعديل جديد من الصفحة — المعرّف: '+noteId+' — النص: '+String(text||'').slice(0,500)},{cache:false}); return 'ok';
 }catch(e){ return 'err:'+((e&&e.code)||e); } };
 </script>
-<div id="walk" hidden>
+<div id="walk" hidden><div id="wload"><div class="wl-logo">صُب</div><div id="wlmsg">جارٍ تجهيز المحل…</div><div class="wl-bar"><i id="wlbar"></i></div><div class="wl-sub">أول فتح قد يأخذ ثوانٍ حسب جهازك</div></div>
 <canvas id="wc"></canvas>
 <div id="wcross"></div>
 <div class="hud-top">
@@ -132,6 +132,12 @@ window.pokeClaude=async function(noteId,text){ try{ const db=await claude.use('d
 <style>
 #walk{position:fixed;inset:0;z-index:50;background:#14110F;direction:rtl;overflow:hidden;font-family:inherit;-webkit-user-select:none;user-select:none}
 #wc{width:100%;height:100%;display:block;touch-action:none}
+#wload{position:absolute;inset:0;z-index:30;background:#FFFFD9;color:#6E4128;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .4s}
+#wload.off{opacity:0;pointer-events:none}
+#wload .wl-logo{font-size:44px;font-weight:700;color:#B2734C}
+#wload .wl-bar{width:220px;max-width:70vw;height:6px;border-radius:9px;background:#EADBC2;overflow:hidden}
+#wload .wl-bar i{display:block;height:100%;width:8%;background:#B2734C;border-radius:9px;transition:width .5s}
+#wload .wl-sub{font-size:12px;opacity:.7}
 #wcross{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.45);pointer-events:none}
 #walk .hud-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 18px max(14px,env(safe-area-inset-left,0px));background:linear-gradient(rgba(10,8,7,.62),rgba(10,8,7,0))}
 #walk .hud-title{flex:1;min-width:0;color:#fff;font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -194,7 +200,7 @@ const B=(x,y,z)=>new T.Vector3(x,z,-y);                     // إحداثيات 
 let sayT=0; const say=(t,ms)=>{ msg.textContent=t; msg.style.opacity=1; clearTimeout(sayT); sayT=setTimeout(()=>msg.style.opacity=0, ms||5000); };
 async function boot(){
   if(!window.THREE){ await loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'); await loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js'); await loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js'); await loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js'); await loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Reflector.js'); }
-  T=window.THREE; ray=new T.Raycaster();
+  T=window.THREE; ray=new T.Raycaster(); try{ wlStage(35,'تحميل المحل…'); }catch(_){}
   // الألوان المكتوبة بالرمز (مثل #B2734C) تُحوَّل لفضاء الألوان الصحيح، وإلا ظهر الكورال ورديًا والكريمي باهتًا
   if(!T.Color.prototype.__srgb){ const _sh=T.Color.prototype.setHex; T.Color.prototype.setHex=function(h){ _sh.call(this,h); return this.convertSRGBToLinear(); }; T.Color.prototype.__srgb=1; }
   renderer=new T.WebGLRenderer({canvas:cv, antialias:devicePixelRatio<1.5, powerPreference:'high-performance'}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.25)); renderer.outputEncoding=T.sRGBEncoding; cv.addEventListener('webglcontextlost',ev=>{ ev.preventDefault(); say('كرت الشاشة توقف لحظة — جارٍ الاستعادة…',8000); },false); cv.addEventListener('webglcontextrestored',()=>{ say('عادت الجولة',3000); },false); renderer.toneMapping=T.ACESFilmicToneMapping; renderer.toneMappingExposure=0.78;
@@ -214,7 +220,7 @@ async function boot(){
     dressStaff(man, avatar, true); setTimeout(()=>trueBrand(avatar),1200);
     mixer=new T.AnimationMixer(man);
     ld.load(bu('glbAnim'), a=>{ a.animations.forEach(c=>{ const cc=c.clone(); cc.tracks=cc.tracks.filter(t=>/\.quaternion$/.test(t.name)).map(t=>{ t.name=t.name.replace(/^mixamorig:?/,''); return t; }).filter(t=>!/^Hips\./.test(t.name)); acts[c.name]=mixer.clipAction(cc); });
-      if(acts.Idle){ acts.Idle.play(); curAct=acts.Idle; } manReady=true; if(base){ baseMan=base; loadBrand().then(()=>{ try{ spawnLife(a.animations); }catch(e){ console.warn('life',e&&e.stack); } }); } });
+      if(acts.Idle){ acts.Idle.play(); curAct=acts.Idle; } manReady=true; if(base){ baseMan=base; loadBrand().then(()=>{ try{ spawnLife(a.animations); window.__lifeOK=1; }catch(e){ window.__lifeOK=1; console.warn('life',e&&e.stack); } }); } });
   }, undefined, ()=>{});
   resize(); addEventListener('resize',resize);
   new T.GLTFLoader().load(window.__cafeUrls.full, g=>{
@@ -224,7 +230,7 @@ async function boot(){
     g.scene.traverse(o=>{ if(o.isMesh){ (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ m.envMapIntensity=/ستيل|حديد|كروم|مرآة|زجاج/.test(m.name)?1.2:0.35; }); } });
     g.scene.traverse(o=>{ if(o.isMesh){ cols.push({m:o, b:new T.Box3().setFromObject(o)}); if(/^espresso_group/.test(o.name)) groups.push(o.getWorldPosition(new T.Vector3())); if(/^grinder_hopper/.test(o.name)) grinders.push(o.getWorldPosition(new T.Vector3())); if(/^espresso_wand/.test(o.name)) wands.push(o.getWorldPosition(new T.Vector3())); } });
     setupDoors(g.scene);
-    st.pos=B(5.9,3.35,0.0); st.yaw=0; ready=true;   // أنت الباريستا: تبدأ خلف البار
+    st.pos=B(5.9,3.35,0.0); st.yaw=0; ready=true; window.__readyAt=performance.now(); wlStage(70,'تجهيز الإضاءة والشخصيات…');   // أنت الباريستا: تبدأ خلف البار
     if(!W.hidden) say('العصا اليسرى للمشي، واليمنى للالتفات والنظر للأعلى والأسفل — أو اسحب الشاشة', 7000);
   }, undefined, ()=>say('تعذّر تحميل المحل'));
 }
@@ -851,7 +857,13 @@ wcup.addEventListener('click',()=>{
     heldObj=null; camera.remove(cup); scene.add(cup); cup.position.set(p.x,(hh?hh.point.y:st.pos.y)+0.002,p.z); cup.rotation.set(0,0,0); held=false; say('وضعت الكوب'); }
 });
 const _prof={n:0,s:0,mx:0};
-function loop(t){ if(!running) return; const dt=Math.min(window.__dtmax||0.06,(t-(last||t))/1000); last=t; if(ready){ const _t0=performance.now(); try{ step(dt); }catch(e){ if(!window.__se){ window.__se=1; console.warn('step',e&&e.stack); } } try{ updateLife(dt,t/1000); }catch(e){ if(!window.__ce){ window.__ce=1; console.warn('life',e&&e.stack); } } try{ updateMirror(); updateListener(); tickTime(t); }catch(_){} try{ drawMap(); }catch(e){ if(!window.__me){ window.__me=1; console.warn('map',e&&e.stack); } } const _d=performance.now()-_t0; _prof.n++; _prof.s+=_d; if(_d>_prof.mx) _prof.mx=_d; } requestAnimationFrame(loop); try{ renderer.render(scene,camera); }catch(e){ showErr('رسم',e); } }
+// شاشة تحميل بدل السواد، وتجهيز كل المواد مسبقًا (compile) قبل الإظهار حتى لا تتعلق الجولة أول ثوانٍ
+function wlStage(pc,txt){ const b=document.getElementById('wlbar'), m=document.getElementById('wlmsg'); if(b) b.style.width=pc+'%'; if(m&&txt) m.textContent=txt; }
+let wlDone=false;
+function warmReveal(){ if(wlDone||!ready) return; const waited=performance.now()-(window.__readyAt||0); if(!window.__lifeOK && waited<9000) return;
+  wlDone=true; wlStage(100,'جاهز'); try{ renderer.compile(scene,camera); }catch(_){}
+  setTimeout(()=>{ const o=document.getElementById('wload'); if(o) o.classList.add('off'); },120); }
+function loop(t){ if(!running) return; if(!wlDone){ try{ warmReveal(); }catch(_){ wlDone=true; } } const dt=Math.min(window.__dtmax||0.06,(t-(last||t))/1000); last=t; if(ready){ const _t0=performance.now(); try{ step(dt); }catch(e){ if(!window.__se){ window.__se=1; console.warn('step',e&&e.stack); } } try{ updateLife(dt,t/1000); }catch(e){ if(!window.__ce){ window.__ce=1; console.warn('life',e&&e.stack); } } try{ updateMirror(); updateListener(); tickTime(t); }catch(_){} try{ drawMap(); }catch(e){ if(!window.__me){ window.__me=1; console.warn('map',e&&e.stack); } } const _d=performance.now()-_t0; _prof.n++; _prof.s+=_d; if(_d>_prof.mx) _prof.mx=_d; } requestAnimationFrame(loop); try{ renderer.render(scene,camera); }catch(e){ showErr('رسم',e); } }
 function showErr(where,e){ const m=(e&&(e.message||e))+''; if(window.__lastErr===m) return; window.__lastErr=m; console.error(where,e); const el=$('wmsg'); if(el){ el.textContent='تنبيه ('+where+'): '+m.slice(0,140); el.style.opacity=1; } }
 window.addEventListener('error',ev=>{ if(!W.hidden) showErr('صفحة',ev.error||ev.message); });
 window.addEventListener('unhandledrejection',ev=>{ if(!W.hidden) showErr('تحميل',ev.reason); });
