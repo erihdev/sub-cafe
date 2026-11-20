@@ -599,7 +599,7 @@ function placeBrand(){
   const fd=doors.find(d=>d.label==='باب المحل'); if(fd){ const st2=new T.Mesh(new T.PlaneGeometry(0.14,0.09),new T.MeshStandardMaterial({map:imgTex('door'),roughness:.5})); const wpos=B(L-0.035,1.55,1.40); fd.pv.worldToLocal(wpos); st2.position.copy(wpos); st2.rotation.y=Math.PI/2; fd.pv.add(st2);
     const st3=st2.clone(); const w3=B(L-0.085,1.55,1.40); fd.pv.worldToLocal(w3); st3.position.copy(w3); st3.rotation.y=-Math.PI/2; fd.pv.add(st3); }
   // لوحة القائمة عند المدخل مواجهة للداخلين
-  placeAt(infoBoard(),13.3,3.0,0,Math.PI/2+0.35);
+  // (حُذفت لوحة أوقات العمل القائمة بطلب ضيف الله 20 نوفمبر 2026)
   // أكياس البن بملصقاتها فوق الخزانة بجانب الكاشير، وترويسة الفاتورة وكروت العمل عند نقطة البيع
   [['lblEsp',7.55,3.85],['lblFil',7.72,3.85],['lblEsp',7.89,3.85],['lblFil',8.06,3.85]].forEach(([k,x,y])=>placeAt(beanBag(k),x,y,1.05,Math.PI));
   scene.traverse(o=>{ if(o.isMesh && /^pos(\d*)$/.test(o.name)) o.visible=false; });
