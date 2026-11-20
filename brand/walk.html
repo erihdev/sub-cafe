@@ -30,11 +30,11 @@ model-viewer{width:100%;height:78vh;min-height:420px;background:var(--surface)}
 <div id="notes" class="chat"></div>
 
 
-<script type="text/plain" id="glbFull" data-src="3d/walk-full.a3bb790e79.glb"></script>
+<script type="text/plain" id="glbFull" data-src="3d/walk-full.67cb6861c5.glb"></script>
 <script type="text/plain" id="glbBar" data-src="3d/walk-bar.7a2277150c.glb"></script>
 <script type="text/plain" id="glbMan" data-src="3d/walk-man.b69cec7a5c.glb"></script>
 <script type="text/plain" id="glbAnim" data-src="3d/walk-anim.50dc858dc0.glb"></script>
-<script type="text/plain" id="glbGround" data-src="3d/walk-ground.b1f6e2234a.glb"></script>
+<script type="text/plain" id="glbGround" data-src="3d/walk-ground.e59a93d752.glb"></script>
 <script>
 (function(){
 const toUrl=id=>{const el0=document.getElementById(id); if(el0.dataset.src) return el0.dataset.src; const s=atob(el0.textContent.trim());const u8=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u8[i]=s.charCodeAt(i);return URL.createObjectURL(new Blob([u8],{type:'model/gltf-binary'}));};
@@ -501,7 +501,7 @@ function stepWalk(p,dt){ if(p.mode!=='walk'||!p.path) return; const tgt=p.path[p
 function here(p){ return [p.root.position.x,-p.root.position.z,p.root.position.y]; }
 // ---- المشاهد
 const OUT=[17.5,1.55,0], DOOR_IN=[13.6,1.55,0], OUT_X=[17.5,2.55,0], DOOR_X=[13.6,2.55,0], PICK=[7.15,1.6,0], QUEUE=[[7.9,1.55,0],[8.65,1.5,0],[9.4,1.5,0]];
-const STAIRS_UP=[[13.2,2.75,0],[14.05,3.57,0.2],[9.3,3.57,3.05],[8.75,3.57,3.30],[8.75,3.05,3.30],[8.75,1.05,3.30],[8.75,0.55,3.30],[7.4,0.55,3.30],[5.8,2.0,3.30]];   // درج مستقيم حتى الدور الثاني ثم ممشى (20 نوفمبر 2026)
+const STAIRS_UP=[[13.2,2.75,0],[14.05,3.57,0.05],[9.3,3.57,2.15],[8.75,3.57,2.30],[8.75,3.05,2.34],[8.75,1.05,3.30],[8.75,0.55,3.30],[7.4,0.55,3.30],[5.8,2.0,3.30]];   // 16 درجة ثم بسطة ثم 7 درجات كما في المخطط (20 نوفمبر 2026)
 let queue=[];
 function spawnLife(clips){ clips.forEach(c=>{ allClips[c.name]=c; });
   let k=0;
