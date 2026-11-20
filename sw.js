@@ -1,5 +1,5 @@
 // يحفظ واجهة التطبيق على الجوال، ويعرض الإشعارات حتى والتطبيق مغلق
-const C='sub-v61', A='sub-assets';
+const C='sub-v62', A='sub-assets';
 const API='https://script.google.com/macros/s/AKfycbyLF3MAe7sq1LGwAxI1lY5V63UiTcRdT2fR9Y8SJiLPDJ-jz7c8Yyw8yud5NZxa8H00/exec';
 const FILES=['./','index.html','brand.js','manifest.webmanifest','icon-192.png','icon-512.png','icon-180.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)));self.skipWaiting();});
@@ -8,7 +8,7 @@ self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=='GET'||u.origin!==location.origin)return;
   // المجسمات الثقيلة اسمها فيه بصمة محتواها: تُحفظ مرة واحدة ولا تُنزَّل ثانية إلا إذا تغيّرت (الاسم يتغيّر معها)
-  const hm=u.pathname.match(/\/(walk-[a-z]+)\.[0-9a-f]{10}\.glb$/);
+  const hm=u.pathname.match(/\/(walk-[a-z]+|floor-\d)\.[0-9a-f]{10}\.(?:glb|jpg)$/);
   if(hm){ e.respondWith(caches.open(A).then(c=>c.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{ if(r.ok){ c.put(e.request,r.clone()); c.keys().then(ks=>ks.forEach(k=>{ const o=new URL(k.url); if(o.pathname!==u.pathname&&o.pathname.includes('/'+hm[1]+'.')) c.delete(k); })); } return r; })))); return; }
   e.respondWith(fetch(e.request,{cache:'no-cache'}).then(r=>{const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp));return r;}).catch(()=>caches.match(e.request).then(r=>r||caches.match('index.html'))));
 });

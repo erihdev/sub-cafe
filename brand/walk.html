@@ -30,11 +30,11 @@ model-viewer{width:100%;height:78vh;min-height:420px;background:var(--surface)}
 <div id="notes" class="chat"></div>
 
 
-<script type="text/plain" id="glbFull" data-src="3d/walk-full.db46ec479f.glb"></script>
+<script type="text/plain" id="glbFull" data-src="3d/walk-full.a8301ebaad.glb"></script>
 <script type="text/plain" id="glbBar" data-src="3d/walk-bar.b030f272f8.glb"></script>
 <script type="text/plain" id="glbMan" data-src="3d/walk-man.b69cec7a5c.glb"></script>
 <script type="text/plain" id="glbAnim" data-src="3d/walk-anim.50dc858dc0.glb"></script>
-<script type="text/plain" id="glbGround" data-src="3d/walk-ground.866af765cc.glb"></script>
+<script type="text/plain" id="glbGround" data-src="3d/walk-ground.f48970da51.glb"></script>
 <script>
 (function(){
 const toUrl=id=>{const el0=document.getElementById(id); if(el0.dataset.src) return el0.dataset.src; const s=atob(el0.textContent.trim());const u8=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u8[i]=s.charCodeAt(i);return URL.createObjectURL(new Blob([u8],{type:'model/gltf-binary'}));};
@@ -111,7 +111,7 @@ window.pokeClaude=async function(noteId,text){ try{ const db=await claude.use('d
   <button id="wmus" type="button" class="ic" aria-label="الموسيقى"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.6" fill="currentColor"/><circle cx="17.5" cy="16" r="2.6" fill="currentColor"/></svg></button><button id="wsnd" type="button" class="ic" aria-label="الصوت"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button id="wshot" type="button" class="ic shot" aria-label="التقط صورة لتعديل"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.9"/></svg></button><button id="wexit" type="button" class="ic" aria-label="خروج"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
 </div>
 <div id="wmsg"></div>
-<div class="mapbox"><canvas id="wmap" width="180" height="64"></canvas><div class="timebox"><span id="wclock">--:--</span><input id="wtime" type="range" min="0" max="23.98" step="0.05" value="12" aria-label="الوقت"><button type="button" id="wnow">الآن</button></div><div class="goto"><button type="button" data-go="door">الباب</button><button type="button" data-go="bar">البار</button><button type="button" data-go="up">العلوي</button></div></div>
+<div class="mapbox"><canvas id="wmap" width="180" height="64"></canvas><div class="timebox"><span id="wclock">--:--</span><input id="wtime" type="range" min="0" max="23.98" step="0.05" value="12" aria-label="الوقت"><button type="button" id="wnow">الآن</button></div><div class="goto"><button type="button" data-go="door">الباب</button><button type="button" data-go="bar">البار</button><button type="button" data-go="up">العلوي</button></div><div class="floors" id="wfloors" role="group" aria-label="لون الأرضية"><button type="button" data-floor="0" title="أبيض كريمي" aria-label="الأرضية 1: أبيض كريمي" style="--c:#D7D0C5">١</button><button type="button" data-floor="1" title="بيج رملي" aria-label="الأرضية 2: بيج رملي" style="--c:#CEBDA4">٢</button><button type="button" data-floor="2" title="أبيض منقّط" aria-label="الأرضية 3: أبيض منقّط" style="--c:#DED7CF">٣</button><button type="button" data-floor="3" title="رمادي فاتح" aria-label="الأرضية 4: رمادي فاتح" style="--c:#8A8B8D">٤</button><button type="button" data-floor="4" title="بيج مشكّل بالرمادي" aria-label="الأرضية 5: بيج مشكّل بالرمادي" style="--c:#CABBA8">٥</button></div></div>
 <div id="wacts">
   <button id="wdoor" type="button" hidden class="act"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 21V4.5L14 3v18M14 5h5v16M3 21h18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="11.5" cy="12.5" r="1.1" fill="currentColor"/></svg><span>افتح الباب</span></button>
   <button id="wcoffee" type="button" hidden class="act"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M7 3.5c0 1 1 1.3 1 2.3M11 3.5c0 1 1 1.3 1 2.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>حضّر قهوة</span></button>
@@ -153,6 +153,9 @@ window.pokeClaude=async function(noteId,text){ try{ const db=await claude.use('d
 #walk .mapbox{position:absolute;top:calc(64px + env(safe-area-inset-top,0px));left:max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:6px;align-items:stretch}
 #wmap{width:180px;height:64px;border-radius:10px;display:block}
 #walk .goto{display:flex;gap:4px}
+.floors{display:flex;gap:5px;justify-content:space-between;background:rgba(20,17,15,.55);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:5px 8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.floors button{width:27px;height:27px;border-radius:50%;border:2px solid rgba(255,255,255,.4);background:var(--c);color:#2a221c;font:inherit;font-size:12px;font-weight:700;line-height:1;padding:0;cursor:pointer}
+.floors button.on{border-color:#F2C14E;box-shadow:0 0 0 2px rgba(242,193,78,.5)}
 #walk .timebox{display:flex;align-items:center;gap:6px;background:rgba(20,17,15,.55);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:5px 8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 #wclock{color:#fff;font-size:12px;min-width:62px;font-variant-numeric:tabular-nums}
 #wtime{flex:1;min-width:0;accent-color:#F2C14E;direction:ltr}
@@ -225,7 +228,7 @@ async function boot(){
   }, undefined, ()=>{});
   resize(); addEventListener('resize',resize);
   new T.GLTFLoader().load(window.__cafeUrls.full, g=>{
-    scene.add(g.scene); g.scene.traverse(o=>{ o.updateMatrix(); o.matrixAutoUpdate=false; }); g.scene.updateMatrixWorld(true);   // المجسم ثابت: لا حساب لمصفوفاته كل إطار
+    scene.add(g.scene); try{ initFloors(g.scene); }catch(e){ console.warn('floors',e); } g.scene.traverse(o=>{ o.updateMatrix(); o.matrixAutoUpdate=false; }); g.scene.updateMatrixWorld(true);   // المجسم ثابت: لا حساب لمصفوفاته كل إطار
     const zebra=m=>{ m.onBeforeCompile=sh=>{ sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;').replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvWP=(modelMatrix*vec4(transformed,1.0)).xyz;');
         sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;').replace('#include <color_fragment>','#include <color_fragment>\n float zq=(vWP.x+vWP.z)*19.0+sin(vWP.y*7.0+vWP.x*2.0)*1.6+sin(vWP.y*21.0+vWP.z*4.0)*0.55+sin((vWP.x-vWP.z)*3.0)*0.8;\n float zb=smoothstep(-0.25,0.25,sin(zq));\n diffuseColor.rgb=mix(vec3(0.50,0.47,0.42),vec3(0.94,0.91,0.85),zb);'); }; m.needsUpdate=true; };
     g.scene.traverse(o=>{ if(o.isMesh){ (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ m.envMapIntensity=/ستيل|حديد|كروم|مرآة|زجاج/.test(m.name)?1.2:0.35; }); } });
@@ -666,6 +669,20 @@ function poseScen(p){ const q=p.root.quaternion;
 // ======================= المرآة الحقيقية والأصوات والموسيقى (طلب ضيف الله 6 نوفمبر 2026) =======================
 // المرآة تعكس المكان ومن يمر أمامها (أنت والزبائن) لحظيًا، وتُحدَّث فقط حين تكون قريبًا منها حتى لا تُثقل الجولة
 let mirrorObj=null;
+// ======================= خيارات الأرضية (طلب ضيف الله 20 نوفمبر 2026) =======================
+// أرضية الحصى الراتنجي «ستون كاربت» بخمسة ألوان من لوحة العينات التي اختارها؛ الخامة 0.60 م لكل تكرار، وتُحمَّل صورة اللون عند اختياره فقط
+const FLOORS=[['أبيض كريمي','3d/floor-1.6d9bc5c748.jpg'],['بيج رملي','3d/floor-2.eca8698672.jpg'],['أبيض منقّط','3d/floor-3.0f1a570379.jpg'],['رمادي فاتح','3d/floor-4.1b70f6b073.jpg'],['بيج مشكّل بالرمادي','3d/floor-5.aacc53e9a5.jpg']];
+let floorMats=[], floorIdx=0; const floorTex={};
+function initFloors(root){ root.traverse(o=>{ if(!o.isMesh||!o.material) return; (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(m.name==='أرضية ستون كاربت' && floorMats.indexOf(m)<0) floorMats.push(m); }); });
+  let i=0; try{ i=+(localStorage.getItem('subFloor')||0)||0; }catch(_){}
+  document.querySelectorAll('#wfloors button').forEach(b=>b.addEventListener('click',()=>setFloor(+b.dataset.floor,true)));
+  setFloor(i,false); }
+function setFloor(i,tell){ if(!FLOORS[i]) i=0; floorIdx=i; document.querySelectorAll('#wfloors button').forEach(b=>b.classList.toggle('on',+b.dataset.floor===i));
+  try{ localStorage.setItem('subFloor',String(i)); }catch(_){}
+  const apply=t=>{ if(floorIdx!==i) return; floorMats.forEach(m=>{ m.map=t; m.roughness=0.62; m.metalness=0; m.needsUpdate=true; }); };
+  if(floorTex[i]) apply(floorTex[i]); else new T.TextureLoader().load(FLOORS[i][1],t=>{ t.encoding=T.sRGBEncoding; t.flipY=false; t.wrapS=t.wrapT=T.RepeatWrapping; t.repeat.set(2,2); t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy()); floorTex[i]=t; apply(t); });
+  if(tell) say('الأرضية '+(i+1)+': '+FLOORS[i][0],2500); }
+
 function addRealMirror(){ if(!T.Reflector) return; const w=1.35, h=3.00;
   const g=new T.PlaneGeometry(w,h); const r=new T.Reflector(g,{clipBias:0.003,textureWidth:512,textureHeight:1024,color:0xc8ccd0});
   r.position.copy(B(3.026,1.425,0.00+h/2)); r.rotation.y=Math.PI/2; scene.add(r); mirrorObj=r;
