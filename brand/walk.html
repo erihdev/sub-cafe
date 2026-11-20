@@ -183,6 +183,7 @@ window.pokeClaude=async function(noteId,text){ try{ const db=await claude.use('d
 #wedit .ed-b{flex:1;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;border-radius:12px;padding:11px 8px;font:inherit;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
 #wedit .ed-b.send{flex:1.4;background:#F2C14E;color:#14110F;border-color:transparent;font-weight:600}
 #wedit .ed-st{color:rgba(255,255,255,.8);font-size:13px;text-align:center;min-height:1em}
+@media (max-width:600px){#walk .stick{width:88px;height:88px;bottom:calc(14px + env(safe-area-inset-bottom,0px))}#walk .stick .knob{width:38px;height:38px;margin:-19px 0 0 -19px}#walk .stick .lbl{top:-18px;font-size:11px;pointer-events:none}#smove{left:calc(12px + env(safe-area-inset-left,0px))}#slook{right:calc(12px + env(safe-area-inset-right,0px))}}
 @media (max-height:520px){#walk .stick{width:110px;height:110px}#wacts{bottom:calc(140px + env(safe-area-inset-bottom,0px))}}
 </style>
 <script>
@@ -194,7 +195,7 @@ const W=$('walk'), cv=$('wc'), msg=$('wmsg'), wdoor=$('wdoor'), wcoffee=$('wcoff
 const L=14.42, R=0.24, keys={};
 let T, renderer, scene, camera, avatar, avMats=[], cols=[], near3=[], lastScan=null, doors=[], groups=[], ray, running=false, ready=false, last=0;
 let nearDoor=null, nearGroup=null, brew=null, cup=null, held=false, bob=0; const grinders=[], wands=[]; let cs='idle', csT=0, pf=null, cupObj=null;
-const st={pos:null, yaw:-Math.PI/2, pitch:-0.08, vy:0, third:true}; const joy={mx:0,my:0,lx:0,ly:0}; let mixer=null, acts={}, curAct=null, manReady=false;
+const st={pos:null, yaw:-Math.PI/2, pitch:-0.08, vy:0, third:true}; window.__wpos=()=>st.pos?st.pos.toArray().map(v=>+v.toFixed(2)):null; const joy={mx:0,my:0,lx:0,ly:0}; let mixer=null, acts={}, curAct=null, manReady=false;
 const loadScript=src=>new Promise((ok,no)=>{const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s);});
 const B=(x,y,z)=>new T.Vector3(x,z,-y);                     // إحداثيات بلندر ← three
 let sayT=0; const say=(t,ms)=>{ msg.textContent=t; msg.style.opacity=1; clearTimeout(sayT); sayT=setTimeout(()=>msg.style.opacity=0, ms||5000); };
@@ -230,7 +231,7 @@ async function boot(){
     g.scene.traverse(o=>{ if(o.isMesh){ (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ m.envMapIntensity=/ستيل|حديد|كروم|مرآة|زجاج/.test(m.name)?1.2:0.35; }); } });
     g.scene.traverse(o=>{ if(o.isMesh){ cols.push({m:o, b:new T.Box3().setFromObject(o)}); if(/^espresso_group/.test(o.name)) groups.push(o.getWorldPosition(new T.Vector3())); if(/^grinder_hopper/.test(o.name)) grinders.push(o.getWorldPosition(new T.Vector3())); if(/^espresso_wand/.test(o.name)) wands.push(o.getWorldPosition(new T.Vector3())); } });
     setupDoors(g.scene);
-    st.pos=B(5.9,3.35,0.0); st.yaw=0; ready=true; window.__readyAt=performance.now(); wlStage(70,'تجهيز الإضاءة والشخصيات…');   // أنت الباريستا: تبدأ خلف البار
+    st.pos=B(6.55,3.35,0.0); st.yaw=0; ready=true; setTimeout(()=>{ try{ st.pos.copy(freeSpot(st.pos.clone())); }catch(_){} },1500); window.__readyAt=performance.now(); wlStage(70,'تجهيز الإضاءة والشخصيات…');   // أنت الباريستا: تبدأ خلف البار
     if(!W.hidden) say('العصا اليسرى للمشي، واليمنى للالتفات والنظر للأعلى والأسفل — أو اسحب الشاشة', 7000);
   }, undefined, ()=>say('تعذّر تحميل المحل'));
 }
@@ -258,8 +259,9 @@ function blocked(p,d,dist){
     if(hits(new T.Vector3(p.x,p.y+h,p.z).addScaledVector(side,off),d,dist).length) return true; }
   return false;
 }
-function npcAt(p){ for(const o of (typeof people!=='undefined'?people:[])){ if(!o.root.visible) continue; const Q=o.root.position; if(Math.abs(Q.y-p.y)>1.0) continue; if(Math.hypot(Q.x-p.x,Q.z-p.z)<0.48) return true; } return false; }
-function tryMove(d,s){ if(s<1e-5) return false; const dn=d.clone().normalize(); if(blocked(st.pos,dn,s+R)) return false; if(npcAt(st.pos.clone().addScaledVector(dn,s+0.05))) return false; if(dropAhead(st.pos,dn,s)) return false; st.pos.addScaledVector(dn,s); return true; }
+function npcAt(p,from){ for(const o of (typeof people!=='undefined'?people:[])){ if(!o.root.visible) continue; const Q=o.root.position; if(Math.abs(Q.y-p.y)>1.0) continue; const dn=Math.hypot(Q.x-p.x,Q.z-p.z); if(dn<0.36){ if(!from) return true; const d0=Math.hypot(Q.x-from.x,Q.z-from.z); if(dn<d0) return true; } } return false; }
+let npcHit=false, npcPush=0, npcGhost=0;
+function tryMove(d,s){ if(s<1e-5) return false; const dn=d.clone().normalize(); if(blocked(st.pos,dn,s+R)) return false; if(npcGhost<=0 && npcAt(st.pos.clone().addScaledVector(dn,s+0.05),st.pos)){ npcHit=true; return false; } if(dropAhead(st.pos,dn,s)) return false; st.pos.addScaledVector(dn,s); return true; }
 // واقعية: لا نزول من فوق الدرابزين ولا من حافة فتحة الدرج — أي هبوط أكبر من درجة (0.40 م) أمامك يمنع الخطوة
 function dropAhead(p,dn,s){ for(const ahead of [Math.min(s,0.12)+R*0.6, Math.min(s,0.12)+R*1.3]){ const q=p.clone().addScaledVector(dn,ahead); const h=hits(new T.Vector3(q.x,p.y+0.5,q.z),new T.Vector3(0,-1,0),40)[0]; const fy=h?h.point.y:-50; if(p.y-fy>0.40+0.75*ahead) return true; } return false; }   // ميل الدرج مسموح، والهبوط الحاد ممنوع
 function step(dt){
@@ -270,7 +272,9 @@ function step(dt){
   const fw=new T.Vector3(Math.sin(st.yaw),0,Math.cos(st.yaw)), rt=new T.Vector3(-Math.cos(st.yaw),0,Math.sin(st.yaw));
   const d=fw.multiplyScalar(f).add(rt.multiplyScalar(sd)); const moving=d.lengthSq()>0;
   if(moving){ const mag=Math.min(1,d.length()), s=1.5*dt*mag; d.normalize();
-    if(!tryMove(d,s)){ tryMove(new T.Vector3(d.x,0,0),Math.abs(d.x)*s); tryMove(new T.Vector3(0,0,d.z),Math.abs(d.z)*s); } }
+    npcHit=false; let mvd=tryMove(d,s); if(!mvd){ const a=tryMove(new T.Vector3(d.x,0,0),Math.abs(d.x)*s), b=tryMove(new T.Vector3(0,0,d.z),Math.abs(d.z)*s); mvd=a||b; }
+    if(!mvd && npcHit){ npcPush+=dt; if(npcPush>0.45){ npcGhost=1.5; npcPush=0; } } else if(mvd) npcPush=0; }
+  if(npcGhost>0) npcGhost-=dt;
   bob = moving ? bob+dt*9 : bob*0.85;
   if(mixer){ const want=moving?(acts.Walk||acts.Idle):acts.Idle; if(want && want!==curAct){ want.reset().play(); if(curAct) curAct.crossFadeTo(want,0.25,false); curAct=want; }
     if(acts.Walk) acts.Walk.timeScale=(f<-0.1?-1:1); mixer.update(dt); }
@@ -801,8 +805,10 @@ function drawMap(){ const mc=$('wmap'); if(!mc||!st.pos) return; const x=mc.getC
   const bx=st.pos.x, by=-st.pos.z, p=P(bx,by), a=-Math.atan2(Math.cos(st.yaw),Math.sin(st.yaw)); 
   x.save(); x.translate(p[0],p[1]); x.rotate(Math.PI-a); x.fillStyle='#F2C14E'; x.beginPath(); x.moveTo(0,-7); x.lineTo(5,5); x.lineTo(-5,5); x.closePath(); x.fill(); x.restore();
   x.fillStyle='#fff'; x.font='11px sans-serif'; x.textAlign='right'; x.fillText(up?'الطابق العلوي':'الطابق الأرضي',w-5,h-5); }
-const spots={door:[11.6,2.0,0,-Math.PI/2], bar:[6.0,3.3,0,0], up:[6.2,2.0,3.3,-Math.PI/2]};
-function goTo(k){ const s0=spots[k]; if(!s0||!st.pos) return; st.pos.copy(B(s0[0],s0[1],s0[2])); st.yaw=s0[3]; st.pitch=-0.08; st.vy=0; scan(); say({door:'عند الباب',bar:'خلف البار أمام المكينة',up:'في الطابق العلوي'}[k],2500); }
+const spots={door:[11.6,2.0,0,-Math.PI/2], bar:[6.55,3.3,0,0], up:[6.2,2.0,3.3,-Math.PI/2]};
+function freeAt(p){ scan(); if(npcAt(p)) return false; for(let a=0;a<8;a++){ const d=new T.Vector3(Math.cos(a*Math.PI/4),0,Math.sin(a*Math.PI/4)); if(blocked(p,d,R*0.9)) return false; } const h=hits(new T.Vector3(p.x,p.y+0.5,p.z),new T.Vector3(0,-1,0),3)[0]; return !!h && Math.abs(h.point.y-p.y)<0.25; }
+function freeSpot(p0){ const save=st.pos.clone(); for(const r of [0,0.3,0.55,0.8,1.1,1.4]){ const n=r?Math.max(8,Math.round(r*16)):1; for(let i=0;i<n;i++){ const a=i/n*Math.PI*2; const q=p0.clone().add(new T.Vector3(Math.cos(a)*r,0,Math.sin(a)*r)); st.pos.copy(q); if(freeAt(q)){ st.pos.copy(save); return q; } } } st.pos.copy(save); return p0; }
+function goTo(k){ const s0=spots[k]; if(!s0||!st.pos) return; st.pos.copy(freeSpot(B(s0[0],s0[1],s0[2]))); st.yaw=s0[3]; st.pitch=-0.08; st.vy=0; scan(); say({door:'عند الباب',bar:'خلف البار أمام المكينة',up:'في الطابق العلوي'}[k],2500); }
 function makeCup(){
   const g=new T.Group(); const white=new T.MeshStandardMaterial({color:0xF4F1EA,roughness:.4});
   const outer=new T.Mesh(new T.CylinderGeometry(0.042,0.032,0.075,24,1,true),white); outer.position.y=0.0375; outer.material.side=T.DoubleSide;
@@ -869,9 +875,9 @@ window.addEventListener('error',ev=>{ if(!W.hidden) showErr('صفحة',ev.error|
 window.addEventListener('unhandledrejection',ev=>{ if(!W.hidden) showErr('تحميل',ev.reason); });
 function resize(){ if(!renderer) return; const w=W.clientWidth||innerWidth, h=W.clientHeight||innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
 // عصا تحكم مزدوجة مثل ألعاب الجوال
-function stick(el,onv){ const kn=el.querySelector('.knob'); let id=null, c=null; const RAD=46;
+function stick(el,onv){ const kn=el.querySelector('.knob'); let id=null, c=null; let RAD=46;
   const upd=e=>{ let dx=e.clientX-c.x, dy=e.clientY-c.y; const m=Math.hypot(dx,dy); if(m>RAD){ dx*=RAD/m; dy*=RAD/m; } kn.style.transform=`translate(${dx}px,${dy}px)`; onv(dx/RAD,dy/RAD); };
-  el.addEventListener('pointerdown',e=>{ e.preventDefault(); id=e.pointerId; const r=el.getBoundingClientRect(); c={x:r.left+r.width/2,y:r.top+r.height/2}; el.classList.add('on'); try{el.setPointerCapture(id);}catch(_){} upd(e); });
+  el.addEventListener('pointerdown',e=>{ e.preventDefault(); id=e.pointerId; const r=el.getBoundingClientRect(); c={x:r.left+r.width/2,y:r.top+r.height/2}; RAD=Math.max(26,r.width*0.36); el.classList.add('on'); try{el.setPointerCapture(id);}catch(_){} upd(e); });
   el.addEventListener('pointermove',e=>{ if(e.pointerId===id) upd(e); });
   const end=e=>{ if(e.pointerId!==id) return; id=null; el.classList.remove('on'); kn.style.transform=''; onv(0,0); };
   el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end); el.addEventListener('lostpointercapture',end); el.addEventListener('contextmenu',e=>e.preventDefault()); }
